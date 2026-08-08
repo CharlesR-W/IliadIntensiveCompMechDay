@@ -1,0 +1,88 @@
+---
+title: "What the transformer evidence adds"
+subtitle: "Optional debrief · only after Notebook 2 CORE 5 · 3–5 minutes"
+author: "ILIAD Intensive · Computational Mechanics"
+title-slide-attributes:
+  data-background-color: "#704612"
+---
+
+## Mess3: compelling geometry, incomplete discrimination
+
+Shai et al. report that an affine map from 64-dimensional final residual activations:
+
+<div class="grid-3">
+<div class="card blue"><h3>Recovers geometry</h3><p>Decoded points reproduce the three-state belief structure.</p></div>
+<div class="card purple"><h3>Tracks training</h3><p>Regression error decreases as the model learns.</p></div>
+<div class="card orange"><h3>Survives controls</h3><p>Held-out MSE remains similar under random 20/80 input–activation-pair splits; shuffled correspondence collapses.</p></div>
+</div>
+
+<div class="takeaway">But on Mess3, next-token probabilities already track much of the belief geometry. The example alone cannot isolate richer predictive state.</div>
+
+<div class="source-line">Reported results: Shai et al., NeurIPS 2024, §§3.1 and A.7. The random split and shuffle procedures were independently repeated 1,000 times.</div>
+
+::: {.notes}
+- Target: about 90 seconds.
+- These are paper results, not the notebook's pedagogical simulation.
+- Say “affinely decodable” rather than “stored in three dedicated neurons.”
+- Random pair splits do not test generalization to structured unseen histories.
+:::
+
+## RRXOR supplies the matched-prediction test
+
+RRXOR has 36 belief states, including histories with matching optimal next-token distributions.
+
+<div class="grid-2">
+<div class="card purple">
+<h3>Layer pattern</h3>
+<p>Final and individual-layer probes recover the geometry poorly; a probe over concatenated layers recovers it much better.</p>
+</div>
+<div class="card blue">
+<h3>Diagnostic comparison</h3>
+<p>Recovered distances can be compared separately with belief distances and with optimal next-token-distribution distances.</p>
+</div>
+</div>
+
+<div class="metric-pair">
+<div class="metric"><span class="value">$R^2=0.95$</span><span class="label">relation to ground-truth belief distances</span></div>
+<div class="metric weak"><span class="value">$R^2=0.31$</span><span class="label">relation to optimal next-token-distribution distances</span></div>
+</div>
+
+::: {.notes}
+- Target: about 90 seconds.
+- Concatenation shows that a joint linear readout can recover the information; it does not locate a causal algorithm or prove each layer stores a fragment.
+- The weaker comparison is probability-space geometry, not raw logits.
+:::
+
+## Strong observational evidence, one rung still open
+
+<div class="grid-2">
+<div class="card green">
+<h3>Supported</h3>
+<ul>
+<li>affine decodability;</li>
+<li>training-linked geometric structure;</li>
+<li>distinctions beyond current optimal next-token probabilities.</li>
+</ul>
+</div>
+<div class="card gold">
+<h3>Still open</h3>
+<ul>
+<li>causal use of decoded directions;</li>
+<li>whether the model performs Bayesian updating;</li>
+<li>which coordinate system is most intrinsic.</li>
+</ul>
+</div>
+</div>
+
+<div class="handoff">
+<span class="label">Next question</span>
+<p>Can predictive state be defined directly from observable futures, without choosing HMM coordinates first?</p>
+</div>
+
+<div class="source-line">Full primary source: <a href="https://arxiv.org/abs/2405.15943">Shai et al., “Transformers Represent Belief State Geometry in their Residual Stream”</a>.</div>
+
+::: {.notes}
+- Target: 1–2 minutes.
+- The open coordinate-system question is the bridge into Hankel rows and PSRs.
+- Do not generalize these toy-process results to transformers broadly without new evidence.
+:::

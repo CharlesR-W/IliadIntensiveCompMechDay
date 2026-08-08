@@ -1,0 +1,199 @@
+---
+title: "One process, several predictive coordinate systems"
+subtitle: "Final synthesis · 12–15 minutes core · optional 8–10 minute WFA branch"
+author: "ILIAD Intensive · Computational Mechanics"
+title-slide-attributes:
+  data-background-color: "#183d35"
+---
+
+## Start only from what the room has reached
+
+<div class="gate">
+<span class="label">Pacing gate</span>
+<p><strong>Full synthesis:</strong> use after Notebook 3's core factorization.</p>
+<p><strong>If Hankel/PSR was dropped:</strong> show only the transformer-evidence slide, the caveats, and the exit.</p>
+<p><strong>WFA branch:</strong> open only if the factorization is secure and 8–10 minutes remain.</p>
+</div>
+
+<div class="big-question">Which distinctions between histories change the distribution over futures?</div>
+
+::: {.notes}
+- Target: under 1 minute.
+- This slide is primarily for the instructor's pacing decision.
+- The final block may be 45 or 60 minutes; do not turn all available time into slide lecture.
+:::
+
+## Four lenses on predictive state
+
+<div class="grid-4">
+<div class="card blue"><h3>HMM belief</h3><p>Posterior over a chosen model's hidden states.</p><p><strong>Update:</strong> normalize a stochastic propagation.</p></div>
+<div class="card green"><h3>Conditional Hankel row</h3><p>Probabilities of all future tests.</p><p><strong>Update:</strong> condition after appending a symbol.</p></div>
+<div class="card purple"><h3>Finite PSR</h3><p>Probabilities of selected spanning tests.</p><p><strong>Update:</strong> generally rational after normalization.</p></div>
+<div class="card orange"><h3>WFA state</h3><p>Coordinates in a finite linear basis.</p><p><strong>Update:</strong> linear symbol operators.</p></div>
+</div>
+
+<div class="takeaway">Different coordinates can describe the same observable predictive distinctions.</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Ask one student to name what each coordinate refers to.
+- Avoid ranking these as increasingly “real”; they serve different calculational and interpretive roles.
+:::
+
+## What survives a change of coordinates?
+
+<div class="big-question">Every valid realization assigns the same probability to every finite word.</div>
+
+<div class="equation-panel">
+$$
+\Pr(w)\quad\text{is invariant; coordinates, update matrices, and arbitrary metric geometry need not be.}
+$$
+</div>
+
+<div class="grid-3">
+<div class="card green"><h3>Invariant</h3><p>word probabilities and full predictive equivalence</p></div>
+<div class="card gold"><h3>Representation-dependent</h3><p>state labels, redundant directions, and basis entries</p></div>
+<div class="card orange"><h3>Requires care</h3><p>Euclidean geometry after an arbitrary invertible transform</p></div>
+</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Connect this to affine transformer probes: an affine relation is meaningful evidence, but raw axes are not canonical.
+- Predictive equivalence is process-relative; HMM belief equality can be finer than needed.
+:::
+
+## What the transformer evidence supports
+
+<div class="evidence-ladder">
+  <div class="rung"><span class="number">1</span><span>Belief coordinates are <strong>affinely decodable</strong> from activations in the studied toy processes.</span><span class="status">supported</span></div>
+  <div class="rung"><span class="number">2</span><span>Structure changes with training and survives held-out and shuffle comparisons.</span><span class="status">supported</span></div>
+  <div class="rung"><span class="number">3</span><span>RRXOR geometry distinguishes histories beyond current optimal next-token distributions.</span><span class="status">supported</span></div>
+  <div class="rung"><span class="number">4</span><span>The decoded directions are used causally to implement Bayesian updating.</span><span class="status">not directly tested</span></div>
+</div>
+
+<div class="source-line">Shai et al., NeurIPS 2024, <a href="https://arxiv.org/abs/2405.15943">arXiv:2405.15943</a>.</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Keep “studied toy processes” audible; do not generalize to transformers broadly.
+- The last rung is an experiment design opportunity, not a defect to hand-wave away.
+:::
+
+## Five caveats worth retaining
+
+<div class="grid-2">
+<div class="card gold"><h3>1 · Belief is model-relative</h3><p>An HMM posterior depends on the chosen realization.</p></div>
+<div class="card gold"><h3>2 · One step is not every future</h3><p>Matched next-token predictions can hide longer-future differences.</p></div>
+<div class="card gold"><h3>3 · A finite block is local evidence</h3><p>Its dependencies need not determine full Hankel rank.</p></div>
+<div class="card gold"><h3>4 · Linear dimension is not HMM size</h3><p>A finite linear realization need not be nonnegative and stochastic.</p></div>
+</div>
+
+<div class="card orange" style="margin-top:0.55em;"><h3>5 · Decodability is not causal use</h3><p>A diagnostic map can reveal information without proving the model's forward computation relies on that coordinate.</p></div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- These are the five places students are most likely to overstate the day’s conclusions.
+- If time is short, ask students to choose the caveat they think matters most and defend it.
+:::
+
+## The day's arc
+
+<div class="process-line" aria-label="Full computational mechanics teaching arc">
+  <div class="step">observable process</div><div class="join">→</div>
+  <div class="step">HMM belief / MSP</div><div class="join">→</div>
+  <div class="step">belief geometry</div><div class="join">→</div>
+  <div class="step">transformer probe</div><div class="join">→</div>
+  <div class="step emph">observable predictive coordinates</div>
+</div>
+
+<div class="question-list">
+  <div class="question">State one claim from today you would now defend precisely.</div>
+  <div class="question">Name one experiment or observation that would change your mind.</div>
+  <div class="question">Which representation made the predictive problem easiest to see—and what did it hide?</div>
+</div>
+
+::: {.notes}
+- Target: 3–5 minutes of discussion.
+- This is the core exit. It can end the day even if the optional branch is skipped.
+- Collect one defended claim and one falsifier from several students.
+:::
+
+## Optional branch: append a symbol linearly
+
+<div class="gate">
+<span class="label">Open only if time remains</span>
+<p>Return to the Notebook 3 instructor demo. Give students the observable basis blocks and solved symbol operators; do not assign matrix inversion.</p>
+</div>
+
+<div class="grid-2">
+<div class="card purple">
+<h3>Basis row</h3>
+<p>A finite vector records selected observable tests after a history.</p>
+</div>
+<div class="card blue">
+<h3>Symbol operator</h3>
+<p>Multiplying by $A_x$ updates that linear coordinate when symbol $x$ is appended.</p>
+</div>
+</div>
+
+<div class="equation-panel">
+$$
+\Pr(x_1\cdots x_L)=\alpha A_{x_1}\cdots A_{x_L}\omega.
+$$
+</div>
+
+::: {.notes}
+- Target: at most 1 minute of setup here, then 5–6 minutes for the supplied notebook word check.
+- Students should verify one supplied word and interpret the representation; do not assign reconstruction or matrix inversion.
+- This branch depends on the core factorization; omit it if that dependency is missing.
+:::
+
+## Negative entries are not negative probabilities
+
+<div class="grid-2">
+<div class="card orange">
+<h3>What an operator entry is</h3>
+<p>A coefficient in an observable linear coordinate update.</p>
+</div>
+<div class="card green">
+<h3>What the induced word weights must satisfy</h3>
+<p>Nonnegativity, normalization at every length, and extension consistency:</p>
+<p>$P(w)\geq 0$, $\sum_{|w|=L}P(w)=1$, and $P(u)=\sum_x P(ux)$.</p>
+</div>
+</div>
+
+<div class="takeaway">A weighted finite automaton is a linear realization of the process—not automatically a hidden Markov model.</div>
+
+::: {.notes}
+- Target: under 1 minute after the notebook word check.
+- Ask students why an intermediate negative coordinate is harmless if the complete observable evaluation stays valid.
+- Do not describe the operators as transition probabilities.
+:::
+
+## Three questions worth carrying forward
+
+<div class="question-list">
+  <div class="question">Which predictive coordinates are actually used causally inside a trained model?</div>
+  <div class="question">Which parts of representation geometry survive principled changes of basis?</div>
+  <div class="question">When does finite predictive dimension admit a compact nonnegative realization?</div>
+</div>
+
+<div class="handoff">
+<span class="label">Closing invariant</span>
+<p>Whatever coordinates we choose, the observable process is the set of probabilities assigned to finite words.</p>
+</div>
+
+<div class="epigraph">
+<p class="latin" lang="la">longum iter est per praecepta, breve et efficax per exempla. multum interest utrum non velit an nesciat. velle non discitur.</p>
+<p class="attribution">— Seneca the Younger, adapted from <cite>Moral Letters to Lucilius</cite> 6.5, 90.46, and 81.13</p>
+</div>
+
+<div class="source-line">Primary empirical source: Shai et al., NeurIPS 2024. Technical derivations and all project-authored figures are in the three worked notebooks.</div>
+
+::: {.notes}
+- Target: 1–2 minutes.
+- These questions distinguish open research directions from claims established today.
+- End on the observable invariant, not on any one formalism.
+- The optional route is now complete: at most 1 minute of setup, 5–6 minutes for the notebook check, under 1 minute for validity, and 1–2 minutes to close.
+- The Latin epigraph is one continuous adapted trio; leave the source line visible so it is not mistaken for a verbatim passage from one location.
+:::

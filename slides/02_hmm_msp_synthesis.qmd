@@ -1,0 +1,203 @@
+---
+title: "From hidden paths to belief geometry"
+subtitle: "HMM/MSP synthesis · after Notebook 1 CORE 4 · 12–15 minutes plus questions"
+author: "ILIAD Intensive · Computational Mechanics"
+title-slide-attributes:
+  data-background-color: "#174d66"
+---
+
+## What did you build?
+
+<div class="process-line" aria-label="Completed HMM to prediction chain">
+  <div class="step">HMM edges</div><div class="join">→</div>
+  <div class="step">$\Pr(w)$</div><div class="join">→</div>
+  <div class="step">$\eta^{(w)}$</div><div class="join">→</div>
+  <div class="step">$F_x$</div><div class="join">→</div>
+  <div class="step emph">belief geometry</div><div class="join">→</div>
+  <div class="step">future predictions</div>
+</div>
+
+<div class="grid-3">
+<div class="card blue"><h3>Linear propagation</h3><p>Matrix products sum hidden paths.</p></div>
+<div class="card orange"><h3>Nonlinear step</h3><p>Normalization depends on the current belief.</p></div>
+<div class="card purple"><h3>Change of view</h3><p>Geometry is the same posteriors seen as points and maps.</p></div>
+</div>
+
+::: {.notes}
+- Target: about 90 seconds.
+- Ask students to supply each arrow verbally before revealing your summary.
+- Protect this synthesis even if the morning ran long: it is the dependency bridge to the afternoon.
+:::
+
+## Two machines answer two questions
+
+<div class="grid-2">
+<div class="card blue">
+<h3>Hidden Markov model</h3>
+<p><strong>Question:</strong> how can a latent mechanism generate the observable stream?</p>
+<p><strong>State:</strong> hidden phase $S_t$.</p>
+<p><strong>Dynamics:</strong> symbol-labelled stochastic edges.</p>
+</div>
+<div class="card purple">
+<h3>Mixed-state presentation</h3>
+<p><strong>Question:</strong> how does an observer update uncertainty from the symbols?</p>
+<p><strong>State:</strong> reachable posterior $\eta^{(w)}$.</p>
+<p><strong>Dynamics:</strong> normalized maps $F_x$.</p>
+</div>
+</div>
+
+<div class="takeaway">The MSP is an inference process induced by the generator—not another hidden physical machine.</div>
+
+::: {.notes}
+- Target: about 90 seconds.
+- Invite one student to state the difference without using the word “state” alone.
+- Emphasize histories are labels for MSP states; equal posteriors are the same MSP point.
+:::
+
+## One normalization creates the observer dynamics
+
+<div class="equation-panel">
+$$
+\underbrace{\pi T^{(w)}}_{\text{unnormalized forward row}}
+\quad\xrightarrow{\text{sum}}\quad
+\Pr(w)=\pi T^{(w)}\mathbf 1
+\quad\xrightarrow{\text{normalize}}\quad
+\eta^{(w)}=\frac{\pi T^{(w)}}{\pi T^{(w)}\mathbf 1}.
+$$
+</div>
+
+After a new symbol $x$ arrives, reuse the posterior as the next prior:
+
+$$
+F_x(\eta)=\frac{\eta T^{(x)}}{\eta T^{(x)}\mathbf 1}.
+$$
+
+<div class="grid-2">
+<div class="card green"><h3>Before normalization</h3><p>Matrix propagation is linear.</p></div>
+<div class="card orange"><h3>After normalization</h3><p>The denominator bends straight mixtures into nonlinear dynamics.</p></div>
+</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- This is recap, not a fresh derivation. Ask what the denominator means: the probability of observing $x$ under the current belief.
+- Keep row-vector orientation consistent with the notebooks.
+:::
+
+## Bayes becomes motion inside a simplex
+
+<div class="figure-frame medium">
+<img src="assets/generated/z1r_belief_geometry.png" alt="Two panels showing reachable Zero–One–Random posterior beliefs as points in a three-state simplex and Bayesian update arrows between those beliefs.">
+</div>
+
+<div class="caption">Each point is a posterior over hidden phase. Each arrow is “observe one more symbol, then renormalize.”</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- On the left, histories are labels, not the state itself.
+- On the right, trace one two-symbol path and have students name the two update maps composing it.
+:::
+
+## Stop: do the Mess3 calculation
+
+<div class="gate">
+<span class="label">Do not reveal the result yet</span>
+<p>Return to the Mess3 synthesis in Notebook 1. Normalize the visible rows for each symbol and calculate at least one two-map composition—or complete that calculation together.</p>
+</div>
+
+<div class="big-question">Where does each one-symbol Bayesian update send the hidden-state simplex?</div>
+
+::: {.notes}
+- Budget 5–8 minutes here if the room reached CORE 4 without completing the Mess3 calculation.
+- This is a genuine stop: there is no result figure on this slide.
+- Advance only after students have supplied the normalized image vertices and worked through one composition.
+:::
+
+## One symbol selects an image of the simplex
+
+<div class="figure-frame medium">
+<img src="assets/generated/mess3_one_symbol.png" alt="Mess3 belief simplex with three translucent image triangles, one for each normalized Bayesian update map after a single observed symbol.">
+</div>
+
+<div class="map-key" aria-label="Mess3 one-symbol image labels">
+  <span class="key-item blue"><strong>observe 0</strong> → $F_0(\Delta^2)$</span>
+  <span class="key-item orange"><strong>observe 1</strong> → $F_1(\Delta^2)$</span>
+  <span class="key-item purple"><strong>observe 2</strong> → $F_2(\Delta^2)$</span>
+</div>
+
+::: {.notes}
+- Target: about 90 seconds.
+- Ask what determines each image triangle: the normalized rows of the corresponding symbol matrix.
+- The slide-native key is the readable reference; the smaller labels inside the raster show the same three images.
+:::
+
+## Repeated Bayes maps carve predictive geometry
+
+<div class="figure-frame medium">
+<img src="assets/generated/mess3_recursive_geometry.png" alt="Mess3 simplex showing nine length-two posterior points and thousands of seven-symbol reachable posteriors forming a nested fractal set.">
+</div>
+
+<div class="takeaway">Three hidden generator states define the ambient triangle—not the number of reachable observer beliefs.</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Left: composition nests images. Right: iteration reveals the limiting visual structure.
+- Every dot is a posterior belief, not a physical hidden state and not a token embedding.
+:::
+
+## Same next token, different future
+
+<div class="grid-2">
+<div>
+$$
+\eta^{(01)}=(0,0,1),\qquad
+\eta^{(10)}=(1/2,1/2,0).
+$$
+
+Both give
+
+$$
+\Pr(X_{t+1}=0,1\mid h)=(1/2,1/2),
+$$
+
+but disagree over two-token futures.
+
+<div class="takeaway">The current next-token vector is not generally sufficient as the <em>sole recursively retained state</em>.</div>
+</div>
+<div class="figure-frame short">
+<img src="assets/generated/z1r_future_comparison.png" alt="Bar chart comparing two-token future distributions after histories 01 and 10. The distributions differ despite identical one-step predictions.">
+</div>
+</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- State the quantifier carefully: this is a result about a sole recursive next-token state.
+- Ask which two-token test most visibly separates the two histories.
+:::
+
+## What follows—and what does not
+
+<div class="grid-3">
+<div class="card green">
+<h3>Established</h3>
+<p>A chosen HMM posterior is sufficient to predict every future word generated by that realization.</p>
+</div>
+<div class="card gold">
+<h3>Qualified</h3>
+<p>Belief coordinates are model-relative and may contain redundant distinctions.</p>
+</div>
+<div class="card orange">
+<h3>Not established</h3>
+<p>A full-prefix transformer need not persistently store this posterior; it can recompute or use other predictive coordinates.</p>
+</div>
+</div>
+
+<div class="handoff">
+<span class="label">Afternoon puzzle</span>
+<p>If next-token training rewards future-sensitive computation, what trace—if any—should that leave in transformer activations?</p>
+</div>
+
+::: {.notes}
+- Target: 1–2 minutes plus questions.
+- Use remaining time for unfinished exercises and questions; this slot is intentionally a buffer.
+- The first claim is sufficiency relative to a chosen realization, not automatic minimality for the observable process.
+:::

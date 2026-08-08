@@ -1,0 +1,32 @@
+project:
+  type: default
+  output-dir: dist
+
+format:
+  revealjs:
+    theme:
+      - default
+      - theme.scss
+    width: 1600
+    height: 900
+    margin: 0.045
+    center: false
+    controls: true
+    controls-layout: bottom-right
+    progress: false
+    slide-number: c/t
+    show-slide-number: all
+    hash: true
+    history: true
+    navigation-mode: linear
+    transition: none
+    background-transition: none
+    pdf-separate-fragments: false
+    incremental: false
+    html-math-method: mathml
+    embed-resources: false
+    include-in-header: export-mode.html
+    footer: "ILIAD Intensive · Computational Mechanics · Summer 2026"
+
+execute:
+  enabled: false

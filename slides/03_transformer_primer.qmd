@@ -1,0 +1,102 @@
+---
+title: "Could a transformer recover predictive state?"
+subtitle: "Belief-geometry primer · before Notebook 2 · 8–10 minutes"
+author: "ILIAD Intensive · Computational Mechanics"
+title-slide-attributes:
+  data-background-color: "#704612"
+---
+
+## The discovery puzzle
+
+<div class="big-question">A transformer is trained only on next-token loss. Why look for anything richer than its next-token probabilities?</div>
+
+<div class="grid-2">
+<div class="card blue">
+<h3>History `01`</h3>
+<p>Belief $(0,0,1)$</p>
+<p>Next token $(1/2,1/2)$</p>
+</div>
+<div class="card orange">
+<h3>History `10`</h3>
+<p>Belief $(1/2,1/2,0)$</p>
+<p>Next token $(1/2,1/2)$</p>
+</div>
+</div>
+
+<div class="takeaway">The objective scores one step at a time; good computation can still depend on distinctions that matter later.</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Bring back the exact pair students just established.
+- Ask where a full-prefix transformer could obtain the missing distinction: earlier tokens, cached activations, or another coordinate system.
+:::
+
+## Where can we look without changing the model?
+
+<div class="figure-frame medium">
+<img src="assets/generated/transformer_probe.png" alt="Schematic in which a full token prefix enters a transformer, producing a last-position residual activation. One branch goes through the unembedding to next-token logits; a separate read-only diagnostic probe predicts an HMM belief for comparison with the exact belief.">
+</div>
+
+<div class="takeaway">A probe is an external diagnostic fitted after training—not part of the transformer's forward pass.</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Define only the objects: prefix, last-position residual activation, unembedding, exact HMM belief, and diagnostic probe.
+- Do not derive the fit or reveal the answer students will propose in CORE 2.
+:::
+
+## Climb an evidence ladder, not a picture gallery
+
+<div class="evidence-ladder">
+  <div class="rung"><span class="number">1</span><span><strong>Fit:</strong> can a simple diagnostic recover belief coordinates?</span><span class="status">starting clue</span></div>
+  <div class="rung"><span class="number">2</span><span><strong>Generalize:</strong> does it work on held-out histories?</span><span class="status">structure</span></div>
+  <div class="rung"><span class="number">3</span><span><strong>Discriminate:</strong> does it beat simpler next-token or covariate explanations?</span><span class="status">specificity</span></div>
+  <div class="rung"><span class="number">4</span><span><strong>Intervene:</strong> does changing the decoded direction change computation as predicted?</span><span class="status">causal use</span></div>
+</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Ask students which rung a regression alone can reach.
+- The notebook reaches strong observational evidence, not a direct causal test of Bayesian updating.
+:::
+
+## Predict the controls before seeing results
+
+<div class="grid-4">
+<div class="card blue"><h3>Held-out histories</h3><p>Does one map extrapolate?</p></div>
+<div class="card orange"><h3>Shuffled pairing</h3><p>Could high dimension fake the fit?</p></div>
+<div class="card purple"><h3>Training checkpoints</h3><p>Does structure emerge with learning?</p></div>
+<div class="card green"><h3>Simple baselines</h3><p>Would token, length, or next-token probabilities suffice?</p></div>
+</div>
+
+<div class="gate">
+<span class="label">Provenance rule</span>
+<p>Keep <strong>teaching simulation</strong>, <strong>reported paper result</strong>, and <strong>our inference</strong> visibly separate.</p>
+</div>
+
+::: {.notes}
+- Target: about 2 minutes.
+- Do not answer the cards. Students predict what each comparison rules out in CORE 4.
+- Remind the room that low error is not self-interpreting; the control determines what claim it supports.
+:::
+
+## Your route: question first, reveal last
+
+<div class="process-line" aria-label="Notebook 2 discovery route">
+  <div class="step">hypothesis</div><div class="join">→</div>
+  <div class="step">paired data</div><div class="join">→</div>
+  <div class="step">probe</div><div class="join">→</div>
+  <div class="step">controls</div><div class="join">→</div>
+  <div class="step emph">matched-prediction test</div>
+</div>
+
+<div class="handoff">
+<span class="label">Open Notebook 2</span>
+<p>Your job is to design the test and predict its failure modes before the reported result is shown.</p>
+</div>
+
+::: {.notes}
+- Target: about 1 minute, then stop presenting.
+- Preserve CORE 5 if time becomes tight; it is the diagnostic resolution of belief versus current next-token geometry.
+- The separate debrief deck remains closed until students have answered CORE 5.
+:::

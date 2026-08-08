@@ -1,0 +1,8 @@
+<script>
+  (() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("handout")) {
+      document.documentElement.classList.add("handout");
+    }
+  })();
+</script>
