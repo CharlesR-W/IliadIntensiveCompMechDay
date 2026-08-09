@@ -200,7 +200,7 @@ The objective scores one step at a time; good computation can still depend on di
 <section id="where-can-we-look-without-changing-the-model" class="slide level2">
 <h2>Where can we look without changing the model?</h2>
 <div class="figure-frame medium">
-<p><img src="assets/generated/transformer_probe.png" alt="Schematic in which a full token prefix enters a transformer, producing a last-position residual activation. One branch goes through the unembedding to next-token logits; a separate read-only diagnostic probe predicts an HMM belief for comparison with the exact belief."></p>
+<p><img src="assets/generated/transformer_probe.png" alt="Schematic in which a full token prefix enters a transformer, producing a last-position residual activation. One branch goes through final LayerNorm and the unembedding to next-token logits; a separate read-only diagnostic probe predicts an HMM belief for comparison with the exact belief."></p>
 </div>
 <div class="takeaway">
 A probe is an external diagnostic fitted after training—not part of the transformer’s forward pass.

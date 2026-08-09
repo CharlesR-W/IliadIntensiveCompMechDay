@@ -1,6 +1,6 @@
 # Iliad Intensive Computational Mechanics Day — Handoff
 
-Updated 2026-08-02. The notebook-and-slide teaching suite is complete and
+Updated 2026-08-08. The notebook-and-slide teaching suite is complete and
 verified.
 
 ## Final state
@@ -59,6 +59,16 @@ browser print-layout drift seen in direct PDF printing.
 
 ## Final verification
 
+- A fresh 2026-08-08 critique of Notebook 2 checked reader dependencies,
+  pacing, notation, execution, and empirical claims against the full Shai et
+  al. paper. The revised builder passes exact regeneration and all six notebooks
+  execute top to bottom. Notebook 2 now asserts that its Mess3 emission map has
+  rank three and that the next-token-only belief reconstruction MSE is below
+  $10^{-12}$; the embedded run gives approximately $3.1\times10^{-30}$.
+- The transformer-primer figure mapping now extracts the probe schematic rather
+  than the simulation's recovery plot, and the offline HTML/assets were
+  refreshed and validated. PDFs were deliberately not rebuilt while Notebook 1
+  remains under author revision; include this change in the final PDF build.
 - `python slides/build_slides.py` passed without skip flags. It rechecked
   notebook freshness and content, extracted all seven figures, rendered the six
   offline HTML decks, assembled the PDFs from live canvases, and ran the slide
@@ -137,12 +147,17 @@ exercise/solution notebooks. The completed notebook critique cycle established:
 
 - Notebook 1 has four timed cores plus Mess3 synthesis, with matrices and
   recursive geometry correctly gated.
-- Notebook 2 has a 58-minute mandatory task/visual budget, evaluation vocabulary,
-  a pedagogical Mess3-family simulation clearly distinguished from paper data,
-  and matched-next-token RRXOR as CORE 5.
-- Notebook 3 has a 58-minute core, treats the small binary Hankel dependency
+- Notebook 2 has a 58-minute mandatory task/visual budget, with its remaining
+  audit questions explicitly optional. It bridges Notebook 1's
+  $\eta^{(h)}$ notation to $b(h)$, distinguishes generator-relative HMM belief
+  from observable predictive equivalence, separates baselines from the
+  shuffled-label negative control, locates the paper's probe before final
+  LayerNorm, makes the exact Mess3 next-token invertibility explicit, and uses
+  matched-next-token RRXOR as CORE 5.
+- Notebook 3 has a 55-minute student-task budget (60–70 minutes with
+  orientation, checks, and debrief), treats the small binary Hankel dependency
   honestly, separates the adopted continuation from finite-block evidence, and
-  makes WFA an 8–10-minute instructor demonstration.
+  makes WFA a 15–20-minute optional, instructor-led reconstruction.
 
 The final full slide build reran these checks successfully:
 

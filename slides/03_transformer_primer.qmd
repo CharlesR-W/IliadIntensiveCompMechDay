@@ -34,7 +34,7 @@ title-slide-attributes:
 ## Where can we look without changing the model?
 
 <div class="figure-frame medium">
-<img src="assets/generated/transformer_probe.png" alt="Schematic in which a full token prefix enters a transformer, producing a last-position residual activation. One branch goes through the unembedding to next-token logits; a separate read-only diagnostic probe predicts an HMM belief for comparison with the exact belief.">
+<img src="assets/generated/transformer_probe.png" alt="Schematic in which a full token prefix enters a transformer, producing a last-position residual activation. One branch goes through final LayerNorm and the unembedding to next-token logits; a separate read-only diagnostic probe predicts an HMM belief for comparison with the exact belief.">
 </div>
 
 <div class="takeaway">A probe is an external diagnostic fitted after training—not part of the transformer's forward pass.</div>
