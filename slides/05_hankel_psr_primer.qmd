@@ -124,7 +124,7 @@ $$
 ## The notebook starts from observations
 
 <div class="figure-frame medium">
-<img src="assets/generated/observable_route.png" alt="Flow diagram from observable word probabilities to Hankel rows, honest rank and row relations, core future tests as predictive-state coordinates, and an optional symbol-operator demonstration.">
+<img src="assets/generated/observable_route.png" alt="Flow diagram from histories and future tests to conditional predictive profiles, the Hankel row space, core tests as predictive-state coordinates, and optional symbol operators.">
 </div>
 
 <div class="handoff">

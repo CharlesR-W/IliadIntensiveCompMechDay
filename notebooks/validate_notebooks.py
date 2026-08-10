@@ -25,7 +25,7 @@ PAIR_STEMS = [
     "02_transformer_belief_geometry",
     "03_hankel_psr_wfa",
 ]
-CORE_TOTALS = {"01_": 4, "02_": 5, "03_": 5}
+CORE_TOTALS = {"01_": 4, "02_": 5, "03_": 4}
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
 
@@ -131,6 +131,20 @@ def validate(path: Path, plt: object) -> None:
             assert label in normalized, (
                 f"{path.name} is missing simulation qualifier: {label}"
             )
+
+    if path.name.startswith("03_"):
+        for guardrail in [
+            "55-minute task budget",
+            "dimension of a linear span, not generally the number",
+            "whenever that observation has positive probability",
+            "optional wfa recap",
+        ]:
+            assert guardrail in normalized, (
+                f"{path.name} is missing Notebook 3 guardrail: {guardrail}"
+            )
+        assert normalized.index("## core synthesis table") < normalized.index(
+            "# optional extension a"
+        ), f"{path.name} places the required synthesis after optional material"
 
     print(f"PASS {path.name}: {len(data['cells'])} cells, {code_count} executed")
 

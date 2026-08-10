@@ -36,13 +36,13 @@ DECKS = (
 
 # Each entry is (notebook path, code-cell ID, image-within-cell index, output name).
 FIGURES = (
-    ("notebooks/01_hmms_msps_solutions.ipynb", "03808fe8311a", 0, "z1r_generator.png"),
-    ("notebooks/01_hmms_msps_solutions.ipynb", "82a9e5c96d83", 0, "z1r_belief_geometry.png"),
-    ("notebooks/01_hmms_msps_solutions.ipynb", "614e8f0c3946", 0, "z1r_future_comparison.png"),
-    ("notebooks/01_hmms_msps_solutions.ipynb", "c347e659da9b", 0, "mess3_one_symbol.png"),
-    ("notebooks/01_hmms_msps_solutions.ipynb", "39dc3db3167a", 0, "mess3_recursive_geometry.png"),
-    ("notebooks/02_transformer_belief_geometry_solutions.ipynb", "998c22f73eeb", 0, "transformer_probe.png"),
-    ("notebooks/03_hankel_psr_wfa_solutions.ipynb", "2f2f07b5d19b", 0, "observable_route.png"),
+    ("notebooks/01_hmms_msps_solutions.ipynb", "50afa2c444f1", 0, "z1r_generator.png"),
+    ("notebooks/01_hmms_msps_solutions.ipynb", "5a8308b53ad0", 0, "z1r_belief_geometry.png"),
+    ("notebooks/01_hmms_msps_solutions.ipynb", "9c9783536598", 0, "z1r_future_comparison.png"),
+    ("notebooks/01_hmms_msps_solutions.ipynb", "b7af9c166fb6", 0, "mess3_one_symbol.png"),
+    ("notebooks/01_hmms_msps_solutions.ipynb", "8b1cecea3f8d", 0, "mess3_recursive_geometry.png"),
+    ("notebooks/02_transformer_belief_geometry_solutions.ipynb", "29e27d0deeab", 0, "transformer_probe.png"),
+    ("notebooks/03_hankel_psr_wfa_solutions.ipynb", "b8a899e7b082", 0, "observable_route.png"),
 )
 
 

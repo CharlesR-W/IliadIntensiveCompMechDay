@@ -10,34 +10,40 @@ worked-solution versions.
 |---|---|---|---|---|
 | 1. HMMs and mixed-state presentations | How does an observer turn an HMM and an observed history into a sufficient state for prediction? | Zero-One-Random (Z1R), then Mess3 | Exhibit beliefs with equal next-token predictions and different longer futures, then calculate one Mess3 map composition | Tune a constrained three-state HMM and inspect its belief geometry |
 | 2. Discovering belief geometry in transformers | If a transformer has learned predictive state, how could we find it in activations? | Mess3 teaching simulation, then the paper's matched-prediction RRXOR comparison | Design controls and explain why the matched-next-token comparison is more diagnostic than Mess3 alone | Transcribe the probe into one NumPy line or design an intervention |
-| 3. Hankel matrices, PSRs, and WFA reconstruction | Can predictive state be defined using only observable word probabilities? | A first-order binary source reconstructed from a finite table | Separate generic small-block dependence from evidence about full Hankel rank, then choose PSR coordinates | Bridge Z1R beliefs to longer tests; interpret a short instructor-led WFA demo |
+| 3. Hankel matrices, PSRs, and WFA reconstruction | Can predictive state be defined using only observable word probabilities? | A first-order binary source reconstructed from a finite table | Derive core tests from Hankel rank while separating finite-block evidence from full-process conclusions | Bridge Z1R beliefs to longer tests; reconstruct a two-dimensional WFA |
 
 ## Notebook 1 — HMMs and mixed-state presentations
 
-**Target time:** 60–70 minutes through the Mess3 core synthesis.  
-**Student coding:** none in the core; the design studio changes three supplied
-numerical parameters.  
+**Target time:** 60–70 minutes through the Mess3 core synthesis: 58 minutes of
+timed exercises plus roughly 12 minutes for the primer, supplied visuals, and
+transitions.
+**Student coding:** none in the core; the optional design studio changes three
+supplied numerical parameters.
 **End state:** students can derive word probabilities, posterior beliefs,
 recursive belief updates, and future predictions, and can explain an MSP as
 dynamics in a simplex.
 
 1. **CORE 1/4: reconstruct the generator (10 min).** Read the Z1R diagram,
-   reconstruct $T^{(0)}$ and $T^{(1)}$, check normalization and stationarity,
-   and calculate one symbol probability.
-2. **CORE 2/4: hidden paths to word probabilities (14 min).** Derive
+   reconstruct $T^{(\text{'0'})}$ and $T^{(\text{'1'})}$, form the marginalized
+   hidden-state matrix $P$, check normalization and stationarity, and calculate
+   one token probability.
+2. **CORE 2/4: hidden paths to word probabilities (12 min).** Derive
    $\Pr(w)=\pi T^{(w)}\mathbf 1$ and calculate short Z1R words.
-3. **CORE 3/4: Bayes as a geometric map (20 min).** Derive the posterior and
+3. **CORE 3/4: Bayes as a geometric map (16 min).** Derive the posterior and
    recursive map $F_x$, calculate several beliefs, and inspect reachable points
-   and arrows in the simplex.
-4. **CORE 4/4: same next token, different future (15 min).** Compare histories
-   `01` and `10`, and state precisely why a next-token vector fails only when it
-   is the model's sole recursively retained state.
-5. **CORE SYNTHESIS: build the Mess3 recursion (10 min).** Read visible Mess3
+   and arrows in the simplex; introduce mixed states and the mixed-state
+   presentation explicitly.
+4. **CORE 4/4: same next token, different future (12 min).** Compare histories
+   '01' and '10', derive a concrete contradiction for a recursively updated
+   next-token vector, and state the limited conclusion precisely.
+5. **CORE SYNTHESIS: build the Mess3 recursion (8 min).** Read visible Mess3
    matrices, normalize rows to obtain image triangles, calculate
    $\eta^{(01)}$, and answer before the supplied length-two/fractal reveal.
-6. **Optional design studio.** Tune a constrained noisy three-state cycle,
-   predict how its update maps should change, and test the prediction with the
-   supplied visualizer.
+6. **Optional consolidation (5 min).** Reconstruct the complete edge-to-future
+   inference pipeline and classify its linear, normalized, and geometric steps.
+7. **Optional design studio (12–15 min).** Tune a constrained noisy three-state
+   cycle, predict how its update maps should change, and test the prediction
+   with the supplied visualizer.
 
 **Natural cut points:** after CORE 2 (word probabilities), after CORE 4
 (complete Z1R logic), or after the Mess3 synthesis (full core).
@@ -67,8 +73,9 @@ interpret its controls, and distinguish a belief probe from a next-token probe.
    use; then interpret subtree holdout, shuffled labels, training checkpoints,
    and covariate and next-token baselines.
 5. **Core visual (10 min).** Inspect a clearly labelled pedagogical Mess3-family
-   parameter variant, compare baselines, and explain why a strong next-token-only
-   baseline makes Mess3 alone inconclusive about information beyond the optimal
+   parameter variant, compare baselines, and use the full-rank emission map to
+   explain why exact next-token probabilities reconstruct its beliefs. Mess3
+   alone is therefore inconclusive about information beyond the optimal
    next-token distribution.
 6. **Optional paper checkpoint (8 min).** Read the paper's reported Mess3
    evidence, including its random 20/80 splits, and state exactly what affine
@@ -91,46 +98,53 @@ after CORE 5 (complete paper logic).
 
 ## Notebook 3 — Hankel matrices, PSRs, and WFA reconstruction
 
-**Target time:** 55–65 minutes through the Hankel/PSR core; 15–25 additional
-minutes for the Z1R bridge; 8–10 additional minutes for an instructor-led WFA
-demo.  
+**Target time:** 55 minutes of core tasks, or 60–70 minutes including
+orientation, supplied checks, and debrief; 15–25 additional
+minutes for the Z1R bridge; 15–20 additional minutes for instructor-led,
+guided WFA reconstruction.
 **Student coding:** none; supplied cells check arithmetic and plot tables.  
-**End state:** students can move from observable word probabilities to
-predictive equivalence and finite predictive coordinates, and strong students
-can interpret observable symbol operators.
+**End state:** students can derive predictive equivalence, Hankel rank, core
+tests, and symbol updates from observable word probabilities, then relate the
+construction back to HMM beliefs without treating latent states as canonical.
 
-1. **CORE 1/5: interrogate the observable table (8 min).** Recover two short word
-   probabilities, check stationarity, and propose the simplest first-order
-   continuation. A withheld length-four check is stretch.
-2. **CORE 2/5: read small-block rank honestly (10 min).** Assemble the
+The notebook now opens with a self-contained conceptual primer: histories and
+future tests, conditional predictive profiles, the joint Hankel matrix, the
+rank/core-test result, and the limited role of the SVD all appear before the
+first Hankel construction is assigned.
+
+1. **CORE 1/4: check the observable source (10 min).** Recover two short word
+   probabilities, distinguish right-extension consistency from stationarity,
+   derive two next-symbol laws, and propose the simplest first-order
+   continuation.
+2. **CORE 2/4: build a block and read rank honestly (12 min).** Assemble the
    $\{\epsilon,0,1\}$ block, derive the generic identity
    $H_{\cdot,\epsilon}=H_{\cdot,0}+H_{\cdot,1}$, and use a nonzero minor to show
    only that this block—and therefore a lower bound on full rank—is two.
-3. **CORE 3/5: normalize before comparing predictions (10 min).** Distinguish
-   proportional joint rows from equal conditional predictive rows.
-4. **CORE 4/5: predictive equivalence and its caveat (10 min).** State why finite
-   suffix agreement is not full equivalence, then adopt the first-order
-   continuation and identify its two recurrent predictive classes.
-5. **CORE 5/5: choose predictions as coordinates (12 min).** Use
-   $\{\epsilon,0\}$ as a PSR basis, derive representative length-two predictions
-   and symbol-conditioned updates, and distinguish linear dimension from affine
-   degrees of freedom.
-6. **Core synthesis (8 min).** Derive the factorization
+3. **CORE 3/4: rows to predictive states (12 min).** Normalize joint rows,
+   distinguish proportional joint rows from equal conditional rows, state why
+   finite test agreement is not full equivalence, and then use the adopted
+   first-order continuation to prove the two recurrent predictive classes.
+4. **CORE 4/4: core tests and updates (13 min).** Derive why independent Hankel
+   columns serve as coordinates, use $\{\epsilon,0\}$ as a PSR basis, express all
+   length-two predictions in one free coordinate, and derive the normalized
+   symbol update.
+5. **Core synthesis (8 min).** Reuse Notebook 1's word formula to derive
    $H_{h,t}=\Pr(h)\,\eta^{(h)}T^{(t)}\mathbf 1$ to connect observable predictive
    rows back to HMM beliefs. The adopted two-state realization gives the missing
    full-rank upper bound; together with the block lower bound it establishes
    exact full rank two for that continuation, not for an arbitrary completion of
    the finite table.
-7. **Stretch: Z1R belief ↔ PSR bridge (15–25 min).** Show that tests
+6. **Optional A: Z1R belief ↔ PSR bridge (15–25 min).** Show that tests
    $\{0,00\}$ recover Z1R's three-component belief and distinguish histories
    merged by one-step prediction.
-8. **Optional WFA instructor demo (8–10 min).** Receive the basis blocks and
-   solved operators, verify one word, and explain why a negative operator entry
-   is not a negative transition probability. The derivation $BA_x=B_x$ is a
-   stretch disclosure, not assigned matrix inversion.
+7. **Optional B: instructor-led WFA reconstruction (15–20 min).** Construct the
+   basis and symbol-shifted blocks, derive $BA_x=B_x$, verify word weights,
+   interpret a negative operator entry, and state where truncated SVD helps—and
+   what it does not guarantee—with empirical Hankel blocks.
 
-**Natural cut points:** after CORE 3 (conceptual introduction), after the core
-factorization (complete PSR core), after the Z1R bridge, or after the WFA demo.
+**Natural cut points:** after CORE 2 (Hankel construction), after the core
+factorization (complete PSR core), after the Z1R bridge, or after the WFA
+reconstruction.
 
 ## Cross-notebook design conventions
 
