@@ -1590,7 +1590,15 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
         response(
             r"""
             Store $W^\top$ in the first $d$ rows of $\Theta$ and $c^\top$ in its
-            final row, so $\Theta\in\mathbb R^{(d+1)\times m}$. Then
+            final row. The complete shape check is
+
+            $$
+            \widetilde A\in\mathbb R^{n\times(d+1)},\qquad
+            \Theta\in\mathbb R^{(d+1)\times m},\qquad
+            B,\widehat B\in\mathbb R^{n\times m}.
+            $$
+
+            The inner dimensions agree, so
 
             $$
             \widehat B=\widetilde A\Theta,\qquad
@@ -2605,6 +2613,11 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             \end{pmatrix}.
             $$
 
+            In particular, $H_{0,1}=\Pr(01)=1/6$ is the joint
+            probability of seeing history `0` followed by test `1`, whereas
+            $H_{1,\epsilon}=\Pr(1)=1/3$ is the probability of history `1`;
+            appending the empty test adds no symbols.
+
             Its first column contains prefix probabilities because appending the
             empty word changes nothing: $\Pr(h\epsilon)=\Pr(h)$. Moreover,
 
@@ -3288,21 +3301,37 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
         ),
         response(
             r"""
-            Reading the entries from the word table gives
+            Concatenating each basis history $p$ with basis test $q$ for $B$,
+            or $p$, inserted symbol $x$, and $q$ for $B_x$, gives
 
             $$
             B=
-            \begin{pmatrix}1&2/3\\2/3&1/2\end{pmatrix},
+            \begin{pmatrix}
+            \Pr(\epsilon)&\Pr(0)\\
+            \Pr(0)&\Pr(00)
+            \end{pmatrix}
+            =\begin{pmatrix}1&2/3\\2/3&1/2\end{pmatrix},
             \qquad
             B_0=
-            \begin{pmatrix}2/3&1/2\\1/2&3/8\end{pmatrix},
-            \qquad
-            B_1=
-            \begin{pmatrix}1/3&1/6\\1/6&1/12\end{pmatrix}.
+            \begin{pmatrix}
+            \Pr(0)&\Pr(00)\\
+            \Pr(00)&\Pr(000)
+            \end{pmatrix}
+            =\begin{pmatrix}2/3&1/2\\1/2&3/8\end{pmatrix}.
             $$
 
-            Here, for example, $(B_1)_{0,0}=\Pr(010)=1/12$. The basis is valid
-            because
+            $$
+            B_1=
+            \begin{pmatrix}
+            \Pr(1)&\Pr(10)\\
+            \Pr(01)&\Pr(010)
+            \end{pmatrix}
+            =\begin{pmatrix}1/3&1/6\\1/6&1/12\end{pmatrix}.
+            $$
+
+            Thus every entry uses the concatenation convention explicitly; for
+            example, the lower-right entry of $B_1$ is
+            $\Pr(0\,1\,0)=\Pr(010)=1/12$. The basis is valid because
 
             $$
             \det B=\frac12-\frac49=\frac1{18}\ne0.
