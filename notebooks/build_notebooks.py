@@ -104,6 +104,19 @@ def plato_geometry_epigraph() -> dict[str, Any]:
     )
 
 
+def heraclitus_hidden_nature_epigraph() -> dict[str, Any]:
+    return md(
+        r"""
+        > <span lang="grc">*φύσις κρύπτεσθαι φιλεῖ.*</span>
+        >
+        > “Nature loves to hide.”
+        >
+        > — **Heraclitus**, [fragment DK 22 B123](https://www.greek-language.gr/digitalResources/ancient_greek/anthology/literature/browse.html?text_id=123)
+        """,
+        ["epigraph"],
+    )
+
+
 def notebook(cells: list[dict[str, Any]], title: str) -> dict[str, Any]:
     for index, item in enumerate(cells):
         source = "".join(item["source"])
@@ -2956,7 +2969,7 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             knowledge is assumed.
             """
         ),
-        seneca_epigraph(),
+        heraclitus_hidden_nature_epigraph(),
         md(
             r"""
             ## From hidden-state beliefs to observable predictive state

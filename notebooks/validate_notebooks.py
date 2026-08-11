@@ -112,23 +112,29 @@ def validate(path: Path, plt: object) -> None:
     assert ",qquad" not in all_source, (
         f"{path.name} contains a malformed LaTeX spacing command"
     )
-    epigraph_texts = (
-        [
+    if path.name.startswith("02_"):
+        epigraph_texts = [
             "ἀεὶ ὁ θεὸς γεωμετρεῖ",
             "god always geometrizes",
             "attributed to **plato**",
             "**plutarch**",
             "moralia* 718b–c",
         ]
-        if path.name.startswith("02_")
-        else [
+    elif path.name.startswith("03_"):
+        epigraph_texts = [
+            "φύσις κρύπτεσθαι φιλεῖ",
+            "nature loves to hide",
+            "**heraclitus**",
+            "fragment dk 22 b123",
+        ]
+    else:
+        epigraph_texts = [
             "longum iter est per praecepta, breve et efficax per exempla",
             "multum interest utrum non velit an nesciat",
             "velle non discitur",
             "seneca the younger",
             "moral letters to lucilius",
         ]
-    )
     for epigraph_text in epigraph_texts:
         assert epigraph_text in normalized, (
             f"{path.name} is missing required epigraph text: "
