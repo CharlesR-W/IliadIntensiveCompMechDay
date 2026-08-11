@@ -90,6 +90,20 @@ def seneca_epigraph() -> dict[str, Any]:
     )
 
 
+def plato_geometry_epigraph() -> dict[str, Any]:
+    return md(
+        r"""
+        > <span lang="grc">*ἀεὶ ὁ θεὸς γεωμετρεῖ.*</span>
+        >
+        > “God always geometrizes.”
+        >
+        > — Saying attributed to **Plato**, reported by **Plutarch**,
+        > [*Table Talk* 8.2 (*Moralia* 718B–C)](https://topostext.org/work/297#718B)
+        """,
+        ["epigraph"],
+    )
+
+
 def notebook(cells: list[dict[str, Any]], title: str) -> dict[str, Any]:
     for index, item in enumerate(cells):
         source = "".join(item["source"])
@@ -292,16 +306,18 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
             1. Without looking at code, reconstruct the complete $3\times3$
                matrices $T^{(\text{'0'})}$ and $T^{(\text{'1'})}$ from the
                diagram.
-            2. Derive the normalization identity
+            2. In terms of the matrices $T^{(x)}$, write the identity expressing
+               that the probabilities of all possible emitted-symbol/destination
+               pairs sum to one from each source state. Explain why this does
+               **not** require either symbol matrix to have row sums equal to
+               one.
 
                $$
                \sum_{x\in\mathcal A}\sum_j T^{(x)}_{ij}=1
                \quad\text{for each source state }i.
                $$
 
-               Explain why it does **not** require either symbol matrix to have
-               row sums equal to one.
-            3. Form the hidden-state transition matrix
+            3. Consider the hidden-state transition matrix
                $P=T^{(\text{'0'})}+T^{(\text{'1'})}$. Explain what information
                is discarded by this sum, then verify that the uniform row
                vector $\pi=(1/3,1/3,1/3)$ is stationary: $\pi P=\pi$.
@@ -412,7 +428,8 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
             1. For a two-symbol word $x_1x_2$, begin with a sum over the unknown
                hidden states $s_0,s_1,s_2$. Regroup the factors until you can
                recognize matrix multiplication.
-            2. Generalize the result to show that the forward row obeys
+            2. Generalize the calculation to a word
+               $w=x_1\ldots x_L$ and show that the forward row obeys
 
                $$
                \alpha^{(wx)}=\alpha^{(w)}T^{(x)},\qquad
@@ -420,9 +437,9 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
                =\pi T^{(w)}\mathbf 1.
                $$
 
-            3. Use either hidden paths or the formula to calculate
-               $\Pr(\text{'01'})$, $\Pr(\text{'00'})$, and
-               $\Pr(\text{'010'})$ for Z1R.
+            3. Use either hidden paths or the matrix formula to calculate
+               $\Pr(\text{'010'})$ for Z1R. Use the stationary prior $\pi$, or
+               choose another prior and state it explicitly.
             4. Explain what information $\alpha^{(w)}$ retains that the scalar
                $\Pr(w)$ discards.
 
@@ -456,12 +473,16 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
             $\alpha^{(wx)}=\alpha^{(w)}T^{(x)}$. Summing its destination-state
             coordinate gives $\Pr(w)=\alpha^{(w)}\mathbf 1$.
 
-            For '01', the only nonzero stationary path begins in $S_0$, so
-            $\Pr(\text{'01'})=1/3$. For '00', the process must begin in $S_R$,
-            emit its random '0', and then emit the certain '0' from $S_0$, so
-            $\Pr(\text{'00'})=(1/3)(1/2)=1/6$. After '01' the process is at
-            $S_R$, which emits '0' with probability $1/2$, so
-            $\Pr(\text{'010'})=1/6$.
+            For a general prior $\rho=(\rho_0,\rho_1,\rho_R)$,
+
+            $$
+            \rho T^{(\text{'0'})}T^{(\text{'1'})}T^{(\text{'0'})}
+            =(\rho_0/2,0,0).
+            $$
+
+            Thus $\Pr(\text{'010'})=\rho_0/2$. With the stationary prior
+            $\rho=\pi$, this is $1/6$: the process must begin in $S_0$, emit
+            the certain prefix '01', and then emit the fair '0' from $S_R$.
 
             The scalar word probability forgets where a compatible hidden path
             ended. The forward row retains the joint mass assigned to each
@@ -534,7 +555,9 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
                $\eta^{(\text{'10'})}$ by
                composing these maps. Check explicitly that the order matters:
                $F_{\text{'1'}}(F_{\text{'0'}}(\pi))\ne
-               F_{\text{'0'}}(F_{\text{'1'}}(\pi))$.
+               F_{\text{'0'}}(F_{\text{'1'}}(\pi))$. For
+               $\eta^{(\text{'01'})}$, report all three coordinates explicitly
+               as $\Pr(S_2=s\mid\text{'01'})$.
             4. Where do all three-component beliefs live geometrically? Why is
                $F_x$ generally rational rather than linear, even though its
                numerator is linear?
@@ -581,7 +604,11 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
             \eta^{(10)}=(1/2,1/2,0).
             $$
 
-            Thus the two update orders land at different points. Every belief
+            In particular,
+            $\Pr(S_2=S_0\mid\text{'01'})=0$,
+            $\Pr(S_2=S_1\mid\text{'01'})=0$, and
+            $\Pr(S_2=S_R\mid\text{'01'})=1$. Thus the two update orders land at
+            different points. Every belief
             is nonnegative and sums to one, so beliefs live in the triangular
             simplex $\Delta^2$. Division by the belief-dependent observation
             probability makes $F_x$ rational rather than linear.
@@ -747,11 +774,24 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
 
             1. Derive the next-token map
                $\Pr(X_{\mathrm{next}}=x\mid\eta)=\eta T^{(x)}\mathbf 1$.
+               Then, for a history $h$ and a whole new future word $u$, show
+               that, when $\Pr(u\mid h)>0$, the destination-state row before
+               normalization is
+
+               $$
+               \eta^{(h)}T^{(u)}
+               =\Pr(u\mid h)\eta^{(hu)}.
+               $$
+
+               Summing this row should recover
+               $\Pr(u\mid h)=\eta^{(h)}T^{(u)}\mathbf1$.
             2. Using the beliefs $\eta^{(\text{'01'})}$ and
                $\eta^{(\text{'10'})}$ from CORE 3, show that both give the
                next-token distribution $(1/2,1/2)$.
             3. For each belief, calculate the distribution over
-               '00', '01', '10', and '11'.
+               '00', '01', '10', and '11'. As a separate three-step check,
+               calculate the probability that the **next three symbols** are
+               '010' after the history '01'.
             4. Imagine compressing every history $h$ to only its next-token
                vector
 
@@ -785,8 +825,20 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
         response(
             r"""
             Summing the unnormalized destination distribution gives
-            $\Pr(x\mid\eta)=\eta T^{(x)}\mathbf 1$. More generally, retaining the
-            later hidden path gives $\Pr(u\mid\eta)=\eta T^{(u)}\mathbf 1$.
+            $\Pr(x\mid\eta)=\eta T^{(x)}\mathbf 1$. More generally, when
+            $\Pr(u\mid h)>0$, retaining the final hidden-state coordinate gives
+
+            $$
+            \Pr(u,S_{|h|+|u|}=S_j\mid h)
+            =[\eta^{(h)}T^{(u)}]_j
+            =\Pr(u\mid h)\eta_j^{(hu)}.
+            $$
+
+            Summing over $j$ gives
+            $\Pr(u\mid h)=\eta^{(h)}T^{(u)}\mathbf 1$. If
+            $\Pr(u\mid h)=0$, the unnormalized row is the zero row and the
+            posterior $\eta^{(hu)}$ is undefined; one must not interpret the
+            displayed factorization as zero times an undefined posterior.
 
             The two beliefs are
 
@@ -806,6 +858,12 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
             \eta^{(10)}&0&1/2&1/4&1/4
             \end{array}
             $$
+
+            Starting from $\eta^{(01)}=(0,0,1)$, the first future '0' moves
+            from $S_R$ to $S_0$, from which the next symbol '1' is impossible.
+            Therefore the probability that the next three symbols are '010'
+            after history '01' is
+            $\eta^{(01)}T^{(\text{'010'})}\mathbf1=0$.
 
             Condition once more on observing '1'. After '01', that token takes
             the process from $S_R$ to $S_0$, so the following token is certainly
@@ -1279,105 +1337,278 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
 
             **{variant} · draft for the Iliad Intensive**
 
-            This notebook is a **guided discovery**: it reconstructs a
-            plausible chain of questions that could lead from optimal prediction
-            to the experiment in Shai et al., *Transformers Represent Belief
-            State Geometry in their Residual Stream*.
+            This notebook is a **guided discovery**. At each stage, commit to an
+            answer before opening the worked solution or reveal. The point is
+            to reconstruct the questions that make the experiment in Shai et
+            al., *Transformers Represent Belief State Geometry in their
+            Residual Stream*, feel necessary rather than merely receive its
+            procedure.
 
             You will:
 
-            - turn the “same next token, different future” result into a
-              hypothesis about a predictor's internal state;
-            - design a dataset pairing transformer activations with exact HMM
-              beliefs;
-            - derive an affine least-squares probe;
-            - translate the derivation into one line of NumPy;
+            - show why a **recursively updated** predictor needs more than
+              today's next-token probabilities;
+            - separate that theorem from the empirical hypothesis that a
+              full-context transformer learns belief-like coordinates;
+            - choose what to measure and invent a diagnostic experiment;
+            - turn the proposed diagnostic into a shape-checked estimator;
             - predict what cross-validation, label shuffling, and training-time
               comparisons rule out;
             - distinguish belief geometry from next-token geometry.
 
-            **Evidence labels matter.** The interactive plots below use a
+            **Evidence labels matter.** The supplied plots below use a
             transparent **teaching simulation, not transformer activations and
             not paper data**. Reported empirical results are clearly separated
             and linked to the full paper.
 
-            Five numbered **CORE** tasks plus the Mess3 simulation contain 58
-            minutes of explicitly timed work. Their timings include reading the
-            prompt, pair discussion, and a brief instructor handoff, leaving
-            roughly 10 minutes in a 70-minute notebook path for transitions.
-            Prompts marked **OPTIONAL AUDIT** are outside that core budget. The
-            fifth task is the
-            matched-next-token comparison needed to distinguish belief geometry
-            from optimal next-token-distribution geometry. The geometric algebra
-            checkpoint, paper checkpoint, one-line transcription, and final
-            experimental-design cards are marked **STRETCH** or **OPTIONAL**.
+            **Core route (60–70 minutes).** Follow the five numbered CORE tasks,
+            run the Mess3 simulation, and stop at the **CORE SYNTHESIS**. Each
+            CORE asks for one primary artifact; bullets marked **instructor
+            handoff** are checks to discuss, not extra student deliverables.
+            Everything after the synthesis is optional and can be skipped
+            without breaking the argument.
+
+            | Act | Question | Primary artifact |
+            |---|---|---|
+            | I | What must survive a one-step prediction collision? | one implication chain |
+            | II | What measurement would test the transformer hypothesis? | one activation–target row plus map |
+            | III | How do we fit the chosen map without losing track of shapes? | one estimator specification |
+            | IV | Which comparisons make a pretty projection evidential? | one control table |
+            | V | How do we rule out “it is only the next-token vector”? | one matched-prediction diagnostic |
             """
         ),
-        seneca_epigraph(),
+        plato_geometry_epigraph(),
+        md(
+            r"""
+            ## ACT I — From a prediction collision to a representation question
+
+            Notebook 1 ended with two histories that agree about the next token
+            but disagree later. We will use that collision as a lever. First
+            solve a deliberately restricted problem about a recursively updated
+            predictor. Then decide which part of the result is a theorem and
+            which part becomes a hypothesis about transformers.
+            """
+        ),
         code(
             r"""
-            # ORIENTATION VISUAL — the objects used in this notebook.
+            # PROVIDED SETUP — local access to the paper's source figures.
+            from pathlib import Path
+            from urllib.request import urlretrieve
+
+            import matplotlib.pyplot as plt
+
+            SHAI_FIGURE_FILES = {
+                1: ("mess3_overview.png", "shai_et_al_2024_figure_1.png"),
+                3: ("z1rmsp.png", "shai_et_al_2024_figure_3.png"),
+                4: ("procedure.png", "shai_et_al_2024_figure_4.png"),
+                5: ("main_results.png", "shai_et_al_2024_figure_5.png"),
+                6: ("Fig6.png", "shai_et_al_2024_figure_6.png"),
+                7: ("rrxor.png", "shai_et_al_2024_figure_7.png"),
+            }
+
+            def load_shai_figure(number):
+                remote_name, local_name = SHAI_FIGURE_FILES[number]
+                candidates = [
+                    Path("notebooks/assets") / local_name,
+                    Path("assets") / local_name,
+                    Path("../notebooks/assets") / local_name,
+                ]
+                figure_path = next(
+                    (path for path in candidates if path.exists()), None
+                )
+                if figure_path is None:
+                    figure_path = Path("/tmp") / local_name
+                    if not figure_path.exists():
+                        urlretrieve(
+                            "https://arxiv.org/html/2405.15943/"
+                            f"extracted/6176469/{remote_name}",
+                            figure_path,
+                        )
+                return plt.imread(figure_path)
+
+            def show_shai_figure(number, title, note, figsize=(15.5, 7.0)):
+                source_figure = load_shai_figure(number)
+                fig, ax = plt.subplots(figsize=figsize)
+                ax.imshow(source_figure)
+                ax.axis("off")
+                ax.set_title(title, fontsize=14, fontweight="bold", pad=10)
+                fig.text(
+                    .5, .012,
+                    f"Source: Shai et al. (2024), Figure {number} · {note}",
+                    ha="center", fontsize=9,
+                )
+                plt.tight_layout(rect=(0, .035, 1, 1))
+                plt.show()
+
+            """
+        ),
+    ]
+
+    # Define the completed paper apparatus here, but reveal it only after
+    # students have invented the measurement in CORE 2.
+    test_bed_cells = [
+        code(
+            r"""
+            # REVEAL VISUAL — the paper-specific model and probe quantities.
             import numpy as np
             import matplotlib.pyplot as plt
-            from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+            from matplotlib.patches import (
+                FancyBboxPatch, FancyArrowPatch, Rectangle
+            )
 
-            fig, ax = plt.subplots(figsize=(12.2, 3.6))
-            ax.set(xlim=(0, 12.2), ylim=(0, 3.6))
+            fig, ax = plt.subplots(figsize=(15.2, 7.2))
+            ax.set(xlim=(0, 15.2), ylim=(0, 7.2))
             ax.axis("off")
 
-            def box(x, y, w, h, text, color="#eef3ff", edge="#27324a"):
+            def box(x, y, w, h, text, color="#eef3ff", edge="#27324a",
+                    fontsize=9.5, linewidth=1.6):
                 ax.add_patch(FancyBboxPatch(
                     (x, y), w, h, boxstyle="round,pad=.04,rounding_size=.08",
-                    fc=color, ec=edge, lw=1.6,
+                    fc=color, ec=edge, lw=linewidth,
                 ))
                 ax.text(x+w/2, y+h/2, text, ha="center", va="center",
-                        fontsize=10)
+                        fontsize=fontsize)
 
-            def arrow(x1, y1, x2, y2, label=""):
+            def arrow(x1, y1, x2, y2, label="", color="#47546b",
+                      style="-|"):
                 ax.add_patch(FancyArrowPatch(
-                    (x1, y1), (x2, y2), arrowstyle="-|>",
-                    mutation_scale=15, lw=1.6, color="#47546b",
+                    (x1, y1), (x2, y2), arrowstyle=style+">",
+                    mutation_scale=15, lw=1.6, color=color,
                 ))
                 if label:
-                    ax.text((x1+x2)/2, (y1+y2)/2-.14, label,
-                            ha="right", fontsize=9, color="#47546b")
+                    ax.text((x1+x2)/2, (y1+y2)/2-.16, label,
+                            ha="center", fontsize=8.5, color=color)
 
-            box(.2, 1.55, 1.65, .72, r"full prefix $h$")
-            box(2.35, 1.38, 2.1, 1.05,
-                "transformer\n(all prefix tokens)")
-            box(5.05, 1.38, 2.25, 1.05,
-                r"last-position residual"+"\n"+r"$a_\ell(h)\in\mathbb{R}^d$")
-            box(8.0, 2.25, 1.7, .72, "final LayerNorm\n+ unembedding")
-            box(10.25, 2.25, 1.7, .72,
-                "next-token\nlogits")
-            box(8.0, .45, 1.7, .72, "diagnostic\naffine probe",
-                color="#fff2d8", edge="#a26712")
-            box(10.25, .45, 1.7, .72,
-                r"predicted belief"+"\n"+r"$\widehat b(h)$",
-                color="#fff2d8", edge="#a26712")
+            # Data path.
+            box(.15, 4.55, 1.45, 1.0,
+                r"prefix $h=x_1\cdots x_L$"+"\n"+r"$L\leq10$ tokens")
+            box(1.95, 4.55, 1.55, 1.0,
+                "token + position\nembeddings")
+            arrow(1.60, 5.05, 1.95, 5.05)
 
-            arrow(1.85, 1.91, 2.35, 1.91)
-            arrow(4.45, 1.91, 5.05, 1.91)
-            arrow(7.30, 2.05, 8.0, 2.55)
-            arrow(9.70, 2.61, 10.25, 2.61)
-            arrow(7.30, 1.75, 8.0, .82, "read only")
-            arrow(9.70, .81, 10.25, .81)
-
-            ax.text(
-                6.15, .05,
-                r"Ground truth for comparison: exact HMM belief "
-                r"$b(h)=\Pr(S_{|h|}\mid h)$",
-                ha="center", fontsize=10, color="#7b4b0b",
+            # Four transformer blocks, matching the paper appendix.
+            shell = FancyBboxPatch(
+                (3.85, 3.55), 6.25, 2.85,
+                boxstyle="round,pad=.08,rounding_size=.12",
+                fc="#f7f8fc", ec="#27324a", lw=2.0,
             )
+            ax.add_patch(shell)
+            ax.text(6.98, 6.67,
+                    r"4-layer causal transformer · $d_{\rm model}=64$",
+                    ha="center", fontsize=11.5, fontweight="bold")
+            arrow(3.50, 5.05, 3.95, 5.05)
+
+            layer_outputs = []
+            for layer in range(4):
+                x = 4.10 + 1.48*layer
+                box(x, 4.20, 1.18, 1.62,
+                    f"layer {layer+1}\ncausal attention\n"
+                    f"1 head · $d_h=8$\n+\nReLU MLP\n$d_{{mlp}}=256$",
+                    color="#e8f1ff", fontsize=7.8, linewidth=1.2)
+                ax.add_patch(FancyArrowPatch(
+                    (x+.16, 5.96), (x+1.02, 5.96),
+                    connectionstyle="arc3,rad=-.34", arrowstyle="-|>",
+                    mutation_scale=12, lw=1.25, color="#6d7890",
+                ))
+                ax.text(x+.59, 6.12, "residual", ha="center",
+                        fontsize=7.4, color="#59657d")
+                layer_outputs.append(x+1.18)
+                if layer < 3:
+                    arrow(x+1.18, 5.01, x+1.48, 5.01)
+
+            ax.text(6.98, 3.63,
+                    "Each block processes every prefix position; taps below "
+                    "refer to the last position only.",
+                    ha="center", fontsize=8.2, color="#59657d")
+
+            # Current-token output path.
+            box(10.48, 4.62, 1.48, .86,
+                r"final residual"+"\n"+r"$a_4(h)\in\mathbb{R}^{64}$",
+                color="#dff3ec", edge="#28765c")
+            box(12.35, 4.62, 1.15, .86,
+                "final\nLayerNorm", color="#eef3ff")
+            box(13.88, 4.62, 1.15, .86,
+                "unembedding\n+ softmax", color="#eef3ff")
+            arrow(10.02, 5.05, 10.48, 5.05)
+            arrow(11.96, 5.05, 12.35, 5.05)
+            arrow(13.50, 5.05, 13.88, 5.05)
+            ax.text(14.45, 4.30,
+                    r"$p(x_{L+1}\mid h)$", ha="center", fontsize=10.5)
+
+            # Read-only diagnostic branch.
+            box(10.48, 2.45, 1.48, .86,
+                "affine probe\n"+r"$\widehat b=Wa_4+c$",
+                color="#fff2d8", edge="#a26712")
+            box(12.45, 2.45, 1.52, .86,
+                r"$\widehat b(h)\in\mathbb{R}^{3}$"+"\nrecovered belief",
+                color="#fff2d8", edge="#a26712")
+            arrow(11.22, 4.62, 11.22, 3.31, "read only",
+                  color="#a26712")
+            arrow(11.96, 2.88, 12.45, 2.88, color="#a26712")
+            ax.text(11.22, 2.20,
+                    r"$W\in\mathbb{R}^{3\times64},\ c\in\mathbb{R}^{3}$",
+                    ha="center", fontsize=8.5, color="#7b4b0b")
+
+            # Exact label comes from the HMM, never from the forward pass.
+            box(.55, .58, 3.05, 1.28,
+                "exact HMM label\n"+
+                r"$b(h)=\Pr(S_L\mid h)\in\Delta^2$"+"\n"+
+                r"$\Pr(u\mid h)=b(h)T^{(u)}\mathbf{1}$",
+                color="#e8f6e8", edge="#3d7b45", fontsize=9.2)
+            arrow(3.60, 1.22, 10.48, 2.63,
+                  r"fit $W,c$ by training MSE", color="#3d7b45")
+            ax.text(4.18, .48,
+                    "Ground truth supervises the diagnostic probe; held-out "
+                    "pairs evaluate the fitted map. Neither is shown to the "
+                    "transformer.",
+                    ha="left", fontsize=8.5, color="#2f6336")
+
+            # Multi-layer quantity used for RRXOR.
+            ax.add_patch(Rectangle((5.02, 2.20), 3.70, .75,
+                                   fc="#f4eafb", ec="#76509a", lw=1.4))
+            ax.text(6.87, 2.57,
+                    r"RRXOR: concat $[a_1;\ldots;a_4]\in\mathbb{R}^{256}$",
+                    ha="center", va="center", fontsize=8.8,
+                    color="#5c3b7b")
+            for output_x in layer_outputs:
+                ax.plot([output_x, output_x], [3.55, 2.95],
+                        color="#76509a", lw=1.0, ls="--")
+
             ax.set_title(
-                "THE TEST — does a transformer encode belief geometry?",
-                fontsize=15, fontweight="bold",
+                "THE ACTUAL TEST BED — where every quantity in the probe lives",
+                fontsize=15.5, fontweight="bold", pad=10,
             )
+            fig.text(
+                .5, .015,
+                "Paper architecture: context 10, four layers, one attention "
+                "head per layer, d_model=64, d_head=8, d_mlp=256.",
+                ha="center", fontsize=9,
+            )
+            plt.tight_layout(rect=(0, .04, 1, .96))
             plt.show()
+            """
+        ),
+        code(
+            r"""
+            # SOURCE VISUAL — Shai et al. (2024), Figure 4.
+            show_shai_figure(
+                4,
+                "THE PAPER'S MEASUREMENT PIPELINE — activations to belief simplex",
+                "A: residual-stream taps · B: activation cloud · "
+                "C: supervised affine projection · D: decoded geometry",
+                figsize=(16.0, 5.3),
+            )
             """
         ),
         md(
             r"""
+            The source schematic abstracts away the exact layer sizes shown in
+            the first diagram, but it makes the geometric operation vivid: color
+            each high-dimensional activation by the independently calculated
+            belief for the same prefix, then fit one affine projection that
+            preserves those labels. See [Shai et al. (2024), Figure
+            4](https://arxiv.org/html/2405.15943#S2.F4).
+
             ### Object and notation card
 
             - $h=x_1\cdots x_L$: the entire token prefix presented to the model.
@@ -1395,8 +1626,8 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
               not part of the transformer's forward pass.
 
             A transformer with the full prefix can recompute information from
-            earlier tokens at every position. Therefore the argument below does
-            not force it to maintain one recursive state. The HMM belief $b(h)$
+            earlier tokens at every position. Therefore the preceding recursive
+            argument does not force it to maintain one state. The HMM belief $b(h)$
             is a generator-relative sufficient coordinate: it determines future
             probabilities for the chosen HMM, but it need not be a minimal
             observable predictive state if two beliefs induce the same full
@@ -1405,143 +1636,461 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
             related to this chosen belief is an empirical question.
             """
         ),
+    ]
+
+    cells.extend([
         md(
             r"""
             ## The discovery puzzle
 
             A transformer is trained only to minimize next-token cross-entropy.
-            Why look for anything richer than its next-token probabilities?
+            That sounds like a one-step job. Why should it create anything as
+            rich as a full belief state?
 
-            Recall the Z1R pair from Notebook 1:
+            To isolate the pressure created by repeated prediction, CORE 1 first
+            studies a predictor constrained to carry one recursively updated
+            state. **This is not yet a theorem about transformers.** A
+            full-context transformer can attend back to the prefix and recompute
+            information instead of updating one state by the rule below. The
+            recursive argument will motivate a measurement; only data can tell
+            us whether transformer activations realize the suggested geometry.
+
+            Begin one rung above Notebook 1. Take its Z1R result as given; do
+            **not** recompute the beliefs or the two-step table:
 
             $$
             \eta^{(01)}=(0,0,1),\qquad
             \eta^{(10)}=(1/2,1/2,0).
             $$
 
-            Both predict the next token as $(1/2,1/2)$, but their distributions
-            over two-token futures differ. This proves that a current
-            next-token vector is not, in general, a sufficient **recursive**
-            state. A full-prefix transformer has other options: revisit earlier
-            tokens, cache a richer state in activations, or use a different
-            predictive coordinate system. Which option training discovers is
-            precisely the puzzle.
+            Both predict the next token as $(1/2,1/2)$. Yet if the common next
+            token is `1`, their following predictions split:
+
+            $$
+            q(\text{'011'})=(1,0),\qquad
+            q(\text{'101'})=(1/2,1/2).
+            $$
+
+            The puzzle is no longer to verify this collision. It is to ask what
+            a predictor must carry **through** the collision if the same system
+            is to keep predicting correctly at the next position, and the next.
+            """
+        ),
+        code(
+            r"""
+            # DISCOVERY VISUAL — a one-step collision that later has to split.
+            import matplotlib.pyplot as plt
+            from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+            fig, ax = plt.subplots(figsize=(11.8, 4.5))
+            ax.set(xlim=(0, 11.8), ylim=(0, 4.5))
+            ax.axis("off")
+
+            def state_box(x, y, text, color, edge):
+                ax.add_patch(FancyBboxPatch(
+                    (x, y), 2.35, .92,
+                    boxstyle="round,pad=.04,rounding_size=.08",
+                    fc=color, ec=edge, lw=1.7,
+                ))
+                ax.text(x+1.175, y+.46, text, ha="center", va="center",
+                        fontsize=10.5)
+
+            def step(x1, y1, x2, y2, label):
+                ax.add_patch(FancyArrowPatch(
+                    (x1, y1), (x2, y2), arrowstyle="-|>",
+                    mutation_scale=16, lw=1.7, color="#47546b",
+                ))
+                ax.text((x1+x2)/2, (y1+y2)/2+.16, label,
+                        ha="center", fontsize=9.5, color="#47546b")
+
+            state_box(.35, 2.75,
+                      "history '01'\n"+r"$q=(1/2,1/2)$",
+                      "#eef3ff", "#355e91")
+            state_box(.35, .70,
+                      "history '10'\n"+r"$q=(1/2,1/2)$",
+                      "#eef3ff", "#355e91")
+            state_box(4.15, 1.73,
+                      "same proposed state\n"+r"$z=q=(1/2,1/2)$",
+                      "#fff2d8", "#a26712")
+            state_box(8.65, 2.75,
+                      "after '011'\n"+r"$q=(1,0)$",
+                      "#e8f6e8", "#3d7b45")
+            state_box(8.65, .70,
+                      "after '101'\n"+r"$q=(1/2,1/2)$",
+                      "#fbe8e6", "#a64b42")
+
+            step(2.70, 3.21, 4.15, 2.42, "compress")
+            step(2.70, 1.16, 4.15, 2.00, "compress")
+            step(6.50, 2.35, 8.65, 3.13, "observe the same token '1'")
+            step(6.50, 2.03, 8.65, 1.16, "observe the same token '1'")
+
+            ax.text(5.33, .18,
+                    "Can one deterministic update rule take the same state and "
+                    "same token to two different predictions?",
+                    ha="center", fontsize=10.5, fontweight="bold")
+            ax.set_title(
+                "THE COLLISION — correct now is not enough to stay correct",
+                fontsize=15, fontweight="bold", pad=10,
+            )
+            plt.tight_layout()
+            plt.show()
             """
         ),
         md(
             r"""
-            ## CORE 1/5 — What does the Z1R pair actually establish? (10 minutes)
+            ## CORE 1/5 — What must a recursive predictor remember? (12 minutes)
 
-            1. Suppose two histories $h$ and $h'$ have identical next-token
-               distributions but different distributions over complete futures.
-               Argue that there must be some finite continuation $y$ after which
-               their next-token distributions differ.
-            2. State the extra assumption needed before “therefore the model
-               must distinguish them **now**” follows. Apply it to a recurrent
-               predictor whose sole carried state is the next-token vector.
-            3. List two ways a full-context transformer could remain optimal
-               without storing our HMM posterior as a persistent vector.
-            4. Turn the result into a cautious empirical hypothesis about
-               $a_\ell(h)$ rather than a theorem about its coordinates.
+            Suppose a predictor compresses a history to a state $z(h)$. From
+            that state it reads out today's next-token distribution and, after
+            observing token $x$, updates for tomorrow:
 
-            <details><summary>Hint 1</summary>
-            If two probability distributions over infinite sequences differ,
-            they differ on at least one finite cylinder event (a finite prefix).
-            Consider the first symbol position at which the relevant conditional
-            probabilities diverge.
-            </details>
+            $$
+            q(h)=D(z(h)),\qquad z(hx)=U(z(h),x).
+            $$
 
-            <details><summary>Hint 2</summary>
-            Separate “must retain enough information to distinguish predictive
-            futures” from “must use our preferred coordinates for that
-            information”.
+            Work from the collision diagram rather than repeating Notebook 1.
+
+            1. Try the tempting shortcut $z(h)=q(h)$. The two blue boxes then
+               give the update rule $U$ exactly the same two inputs. What must a
+               deterministic $U$ return? Why do the two boxes on the right make
+               that impossible?
+            2. Now let $z$ be arbitrary. If $z(h)=z(h')$, apply the same update
+               repeatedly to show that the model must make the same later
+               next-token prediction after $hu$ and $h'u$ for **every** possible
+               continuation $u$. Use that result to complete one chain:
+
+               > next-token loss at every prefix
+               > $\Rightarrow$ correct again after every continuation
+               > $\Rightarrow$ ______ must survive in $z(h)$
+               > $\Rightarrow$ histories may merge only when ______.
+
+               State the contrapositive in words.
+            3. Notebook 1 supplied one update-ready state for a known HMM:
+               $b(h)=\Pr(S_{|h|}\mid h)$. Without re-deriving Bayes' rule, write
+               the two formulas showing (i) how $b$ updates after $x$, whenever
+               the observed symbol $x$ has positive conditional probability,
+               and (ii) how it answers a query about any future word $u$.
+            4. Sort these statements into **forced by the recursive setup**,
+               **natural empirical hypothesis**, or **not implied**:
+
+               - future-distinct histories cannot share the same $z$;
+               - the HMM belief is a sufficient choice of $z$;
+               - a full-context transformer must store the exact HMM belief in
+                 the coordinates chosen by the HMM designer.
+
+               **Primary artifact:** your completed implication chain plus this
+               one-sentence bridge to an experiment: “Because predictive
+               training needs ______, a last-position activation $a_\ell(h)$
+               may contain ______.”
+
+               **Instructor handoff:** compare the three labels and identify
+               exactly where the theorem ends.
+
+            <details><summary>Hint</summary>
+            Apply the same update $U(\cdot,u_1)$ to equal states, then repeat for
+            $u_2,u_3,\ldots$. The readout $D$ cannot split states that remain
+            equal.
             </details>
             """
         ),
         response(
             r"""
-            If the full future distributions differ, there is a finite word
-            $yx$ whose conditional probability differs after $h$ and $h'$.
-            Choose a shortest such word. Their probabilities for the shorter
-            prefix $y$ agree up to the point where the conditional probability
-            of its final symbol $x$ first differs. Thus, after seeing $y$, an
-            optimal next-token predictor must make different predictions. If
-            $y$ is impossible under one history, the two predictors already
-            disagree at or before the first symbol that makes it impossible.
+            With $z=q$, both histories supply the pair
+            $((1/2,1/2),\text{'1'})$ to $U$. A deterministic function must
+            return the same updated state, and $D$ must then return the same
+            prediction. But correctness requires $(1,0)$ after '011' and
+            $(1/2,1/2)$ after '101'. The current next-token vector therefore
+            cannot be the whole update-ready state.
 
-            The extra assumption is that the representation being merged is the
-            model's **only** route by which the earlier history can affect later
-            predictions. A recurrent predictor that retains only its current
-            next-token vector satisfies this assumption: equal vectors followed
-            by equal inputs force identical later states, so it fails on one of
-            the histories.
+            More generally, if $z(h)=z(h')$, then for the first symbol $u_1$,
 
-            A full-context transformer can instead attend back to distinct
-            prefix tokens and recompute the distinction; it could also encode a
-            sufficient predictive state in nonlinear or model-independent
-            coordinates rather than the chosen HMM's posterior.
+            $$
+            z(hu_1)=U(z(h),u_1)=U(z(h'),u_1)=z(h'u_1).
+            $$
 
-            A cautious hypothesis is therefore: predictive training may make
-            some layer's last-position residual $a_\ell(h)$ contain a compact
-            representation affinely related to the exact belief $b(h)$. That is
-            a testable geometric claim, not a necessity theorem.
+            Repeating the argument gives $z(hu)=z(h'u)$ for every continuation
+            $u$, so $D$ gives the same later next-token distributions. In
+            contrapositive form: if some continuation eventually requires
+            different predictions, an update-only state must distinguish the
+            histories **before** that continuation arrives.
+
+            The completed chain is: loss at every prefix requires the predictor
+            to remain correct after every continuation; therefore every
+            distinction that can change a later prediction must survive in
+            $z(h)$; histories may merge only when they induce the same complete
+            future law. Storing $q(h)$ answers one question. An update-ready
+            predictive state must preserve enough information to answer the
+            whole branching family of later questions.
+
+            For the known HMM, the belief does this because, whenever the
+            observed symbol $x$ has positive conditional probability,
+
+            $$
+            b(hx)=\frac{b(h)T^{(x)}}{b(h)T^{(x)}\mathbf1},\qquad
+            \Pr(u\mid h)=b(h)T^{(u)}\mathbf1.
+            $$
+
+            Future-distinct histories being separated is forced by the stated
+            recursive setup. The HMM belief is a sufficient choice, so it is a
+            natural object to look for. Exact HMM coordinates in a full-context
+            transformer are not forced: attention can revisit the prefix, and
+            an equally sufficient state can use different or nonlinear
+            coordinates. A suitable bridge is: “Because predictive training
+            needs future-relevant distinctions to remain available, a
+            last-position activation may contain a compact predictive state
+            affinely related to $b(h)$.” That final step is the empirical bet we
+            will test, not a theorem smuggled in from the objective.
             """,
             show_solutions,
         ),
+        code(
+            r"""
+            # SYNTHESIS VISUAL — the chain just derived, with the logical hinge marked.
+            fig, ax = plt.subplots(figsize=(14.2, 4.9))
+            ax.set(xlim=(0, 14.2), ylim=(0, 4.9))
+            ax.axis("off")
+
+            chain = [
+                ("next-token loss\nat every prefix", "#eef3ff", "#355e91"),
+                ("must stay correct\nafter continuations", "#eef3ff", "#355e91"),
+                ("preserve every distinction\nthat changes a later prediction",
+                 "#fff2d8", "#a26712"),
+                ("update-ready\npredictive state", "#e8f6e8", "#3d7b45"),
+                ("for a known HMM:\nbelief $b(h)$ is sufficient",
+                 "#e8f6e8", "#3d7b45"),
+            ]
+            xs = [.15, 2.95, 5.75, 8.75, 11.45]
+            widths = [2.15, 2.15, 2.45, 2.05, 2.55]
+
+            for index, ((label, face, edge), x, width) in enumerate(
+                zip(chain, xs, widths)
+            ):
+                ax.add_patch(FancyBboxPatch(
+                    (x, 2.05), width, 1.15,
+                    boxstyle="round,pad=.05,rounding_size=.08",
+                    fc=face, ec=edge, lw=1.7,
+                ))
+                ax.text(x+width/2, 2.625, label, ha="center", va="center",
+                        fontsize=9.5)
+                if index < len(chain)-1:
+                    ax.add_patch(FancyArrowPatch(
+                        (x+width, 2.625), (xs[index+1], 2.625),
+                        arrowstyle="-|>", mutation_scale=15, lw=1.5,
+                        color="#47546b",
+                    ))
+
+            ax.plot([.15, 10.80], [1.48, 1.48], color="#355e91", lw=2.2)
+            ax.text(5.47, 1.13,
+                    "logical pressure for any recursively updated predictor",
+                    ha="center", fontsize=9.5, color="#355e91")
+            ax.plot([11.45, 14.0], [1.48, 1.48], color="#8c5a13", lw=2.2)
+            ax.text(12.72, 1.13,
+                    "generator-relative coordinate",
+                    ha="center", fontsize=9.5, color="#8c5a13")
+            ax.text(12.72, .48,
+                    "Does a transformer choose this geometry?  That is now an experiment.",
+                    ha="center", fontsize=10.2, fontweight="bold")
+            ax.set_title(
+                "ONE-STEP OBJECTIVE, MULTI-STEP REPRESENTATIONAL BURDEN",
+                fontsize=15, fontweight="bold", pad=10,
+            )
+            plt.tight_layout()
+            plt.show()
+            """
+        ),
         md(
             r"""
-            ## CORE 2/5 — Turn the idea into a testable hypothesis (8 minutes)
+            ## ACT II — Turn the hypothesis into a measurement
 
-            Imagine that we:
+            CORE 1 established a necessity result only for the stipulated
+            recursive predictor. For a transformer, the claim that belief-like
+            information appears in a particular activation is an empirical bet.
+            The next task is to decide what observation would make that bet
+            testable—without yet seeing the paper's answer.
 
-            1. generate token histories $h_1,\ldots,h_n$ from a known HMM;
-            2. feed each history to a trained transformer and record one
-               residual-stream activation $a(h_i)\in\mathbb R^d$;
-            3. calculate the exact HMM belief
-               $b(h_i)\in\Delta^{m-1}\subset\mathbb R^m$.
+            ## CORE 2/5 — Invent the experiment before seeing the paper's version (8 minutes)
 
-            Answer before reading on:
+            You have a known HMM, a transformer trained only on its emitted
+            strings, and permission to record activations. The transformer was
+            never shown hidden states or beliefs. Design the smallest experiment
+            that could reveal whether it nevertheless discovered the HMM's
+            belief geometry.
 
-            1. What should be the **source** and **target** of a map testing
-               whether belief geometry is linearly represented?
-            2. Write an affine hypothesis using a matrix $W$ and offset $c$,
-               including their shapes.
-            3. Why is predicting the belief vector a stronger geometric claim
-               than classifying only the most likely hidden state?
-            4. Name one low error result that would nevertheless be
-               unconvincing without a control.
+            1. Make one row of the proposed dataset. What observed history is
+               fed to the transformer? Which activation do you record? Which
+               exact quantity can you calculate independently from the HMM?
+            2. Consider three targets: the most likely hidden state, the current
+               next-token vector $q(h)$, and the full belief $b(h)$. Which one
+               actually tests the geometric hypothesis motivated by CORE 1?
+               What information do the other two discard?
+            3. Draw the diagnostic arrow and annotate it with the simplest map
+               that can undo rotation, scaling, and translation without
+               arbitrarily memorizing every point. Write its equation with $W$
+               and $c$, including shapes for $a(h)\in\mathbb R^d$ and an
+               $m$-state HMM.
+            4. Suppose the map succeeds on new histories. Finish the sentence
+               as cautiously as possible: “This would show ______; it would not
+               yet show ______.”
+
+            **Primary artifact:** one labelled dataset row and one diagnostic
+            arrow. The target choice, map family, direction, and inference
+            should all be visible on that sketch.
 
             <details><summary>Hint</summary>
-            The phrase “linearly represented” is operationalized as affine
-            decodability from activations, not as a claim that an individual
-            neuron equals an individual belief coordinate.
+            Pair two views of the **same history**. The exact label comes from
+            Bayesian filtering in the known generator, not from the model.
             </details>
             """
         ),
         response(
             r"""
-            The source is the $d$-dimensional residual activation; the target is
-            the $m$-component ground-truth belief. With column-vector notation,
+            One dataset row pairs the last-position residual activation at a
+            chosen layer,
+
+            $$
+            a_\ell(h_i)\in\mathbb R^d,
+            $$
+
+            with the exact filtered HMM belief for that same observed prefix,
+
+            $$
+            b(h_i)=\Pr(S_{|h_i|}\mid h_i)\in\Delta^{m-1}.
+            $$
+
+            The most-likely-state label collapses a continuous simplex into
+            decision regions. The current $q(h)$ retains probabilities but can
+            merge states that require different later predictions, as CORE 1
+            showed. The full belief retains an update-ready coordinate for the
+            chosen generator, so it is the diagnostic target.
+
+            The arrow must run from activation to belief: if a simple map reads
+            $b(h)$ from $a_\ell(h)$, the information is decodable from the
+            transformer's representation. An affine map is the first useful
+            test because it can undo a rotated, rescaled, and translated copy of
+            the simplex while imposing one shared global correspondence. With
+            column-vector notation,
 
             $$
             b(h)\approx Wa(h)+c,\qquad
             W\in\mathbb R^{m\times d},\quad c\in\mathbb R^m.
             $$
 
-            A classifier need preserve only decision regions. Reconstructing the
-            full continuous belief vector asks it to preserve relative position,
-            mixtures, and the geometry inside the simplex.
-
-            Low training error alone is weak: a high-dimensional probe could
-            interpolate a small dataset. Other concerns include accidentally
-            fitting history length or token identity, choosing the projection
-            after seeing the target picture, or obtaining an attractive
-            projection even after breaking the activation–belief pairing.
+            Success on genuinely held-out histories would show affine
+            **decodability** of the chosen HMM belief geometry from those
+            activations. It would not yet show that the transformer uses those
+            coordinates causally, that they are the unique predictive
+            coordinates, or that every HMM realization of the same process
+            would yield the same target.
             """,
             show_solutions,
         ),
         md(
             r"""
+            ### Reveal — compare your experiment with the paper's
+
+            You have now chosen the two objects and the direction of the map.
+            Only now uncover the completed apparatus below. Trace each arrow
+            and identify where your design agrees with it, where the exact HMM
+            supplies supervision, and which quantities the transformer itself
+            never receives.
+            """
+        ),
+        md(
+            r"""
+            ### Reveal 1 — the geometric target
+
+            The paper makes the full posterior belief the target. The first
+            image below is the particular fractal arrangement of exact Mess3
+            beliefs inside the three-state simplex; the second is the HMM that
+            generates the training strings. Each point is
+            $b(h)=\Pr(S_{|h|}\mid h)$ for one observed prefix, and its RGB color
+            is that same probability vector.
+
+            The paper's Mess3 parameters differ from the pedagogical
+            Mess3-family parameters in Notebook 1 and in the later simulation.
+            """
+        ),
+        code(
+            r"""
+            # SOURCE VISUAL — Shai et al. (2024), Figure 5, panels B and A.
+            paper_figure = load_shai_figure(5)
+
+            fig, ax = plt.subplots(figsize=(8.4, 6.2))
+            ax.imshow(paper_figure[:, 610:1328])
+            ax.axis("off")
+            ax.set_title(
+                "THE TARGET — exact Mess3 belief states in the simplex",
+                fontsize=14, fontweight="bold", pad=10,
+            )
+            fig.text(
+                .5, .015,
+                "Source: Shai et al. (2024), Figure 5B · "
+                "color and position both encode the exact belief b(h)",
+                ha="center", fontsize=9,
+            )
+            plt.tight_layout(rect=(0, .04, 1, 1))
+            plt.show()
+
+            fig, ax = plt.subplots(figsize=(6.2, 6.2))
+            ax.imshow(paper_figure[:, :610])
+            ax.axis("off")
+            ax.set_title(
+                "THE GENERATOR — the Mess3 edge-emitting HMM",
+                fontsize=14, fontweight="bold", pad=10,
+            )
+            fig.text(
+                .5, .015,
+                "Source: Shai et al. (2024), Figure 5A · "
+                "hidden states S1, S2, S3; emitted tokens A, B, C",
+                ha="center", fontsize=9,
+            )
+            plt.tight_layout(rect=(0, .04, 1, 1))
+            plt.show()
+            """
+        ),
+        md(
+            r"""
+            Figure 3 supplies the conceptual bridge that justifies this target:
+            generator $\rightarrow$ mixed-state updater $\rightarrow$ simplex
+            $\rightarrow$ reachable belief geometry. Locate the beliefs labelled
+            `01` and `10` in panel D. They remain distinct even though their
+            current next-token distributions agree.
+            """
+        ),
+        code(
+            r"""
+            # SOURCE VISUAL — Shai et al. (2024), Figure 3.
+            show_shai_figure(
+                3,
+                "FROM GENERATION TO PREDICTION — the paper's Z1R construction",
+                "A: generator · B: mixed-state presentation · "
+                "C: simplex coordinates · D: belief geometry",
+                figsize=(16.0, 4.8),
+            )
+            """
+        ),
+        md(
+            r"""
+            Source and full context: [Shai et al. (2024), Figure
+            3](https://arxiv.org/html/2405.15943#S2.F3) and [Figure
+            5](https://arxiv.org/html/2405.15943#S3.F5).
+
+            ### Reveal 2 — the paper's apparatus
+
+            Now compare your row and arrow with the actual diagnostic pipeline.
+            The first diagram makes every quantity explicit; the source figure
+            then shows the same operation geometrically.
+            """
+        ),
+        *test_bed_cells,
+        md(
+            r"""
+            ## ACT III — Make the proposed map operational
+
+            The experiment is now specified conceptually. The only remaining
+            question is whether its algebra is unambiguous enough that someone
+            else could fit exactly the same map.
+
             ## CORE 3/5 — Specify the affine belief probe (10 minutes)
 
             Stack the activation row vectors into
@@ -1571,20 +2120,15 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
                sides. Propose a held-out split that tests extrapolation across
                a meaningful history family.
 
+            **Primary artifact:** one shape-checked line containing
+            $\widehat B$, the least-squares objective, and $\Theta^\star$, plus
+            one sentence naming your held-out unit.
+
             <details><summary>Hint 1</summary>
             With examples stored as rows, the prediction is
             $\widehat B=\widetilde A\Theta$.
             </details>
 
-            <details><summary>STRETCH — derive the normal equations</summary>
-            Differentiating
-            $\|\widetilde A\Theta-B\|_F^2$ gives
-            $2\widetilde A^\top(\widetilde A\Theta-B)$. Setting it to zero
-            yields
-            $\widetilde A^\top\widetilde A\Theta=\widetilde A^\top B$.
-            This derivation is optional; the geometry and experimental split
-            carry more weight in the timed path.
-            </details>
             """
         ),
         response(
@@ -1625,98 +2169,12 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
         ),
         md(
             r"""
-            ### STRETCH — Undo a tilted affine embedding (5 minutes)
+            ## ACT IV — Try to defeat your own probe
 
-            Suppose a three-state belief $b=(b_0,b_1,b_2)$, with
-            $b_0+b_1+b_2=1$, is embedded in two activation coordinates:
+            A successful affine fit is easy to admire and easy to overread.
+            Before seeing a plot, decide what comparisons would make failure
+            possible and what alternative explanation each comparison targets.
 
-            $$
-            a_1=2b_0+b_1+1,\qquad
-            a_2=b_0-b_1-1.
-            $$
-
-            Before running code, solve for $b_0,b_1,b_2$ as affine functions of
-            $a_1,a_2$. This confirms that an apparently tilted and translated
-            activation triangle can contain exactly the same belief geometry.
-            """
-        ),
-        response(
-            r"""
-            Adding the activation equations cancels $b_1$ and the constants:
-
-            $$
-            b_0=\frac{a_1+a_2}{3}.
-            $$
-
-            The combination $a_1-2a_2-3$ cancels $b_0$, giving
-
-            $$
-            b_1=\frac{a_1-2a_2-3}{3},\qquad
-            b_2=1-b_0-b_1.
-            $$
-
-            The offset is essential: a purely linear map through the origin
-            need not undo the translation by $(1,-1)$.
-            """,
-            show_solutions,
-        ),
-        md(
-            r"""
-            ## STRETCH — Translate the formula into one line (2 minutes)
-
-            The cell supplies exact activation–belief pairs. Replace `None` with
-            **one NumPy expression** corresponding to your pseudoinverse formula.
-            This is a quick transcription check, not a programming exercise;
-            skip it if the matrix formula is already clear.
-
-            <details><summary>API hint</summary>
-            `np.linalg.pinv(M)` computes $M^+$, and matrix multiplication uses
-            `@`.
-            </details>
-            """
-        ),
-        code(
-            """
-            # PROVIDED SETUP — run this collapsed cell first.
-            import numpy as np
-            np.set_printoptions(precision=4, suppress=True)
-
-            B_tiny = np.array([
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0],
-                [0.0, 0.0, 1.0],
-                [1/3, 1/3, 1/3],
-            ])
-            A_tiny = np.column_stack([
-                2*B_tiny[:, 0] + B_tiny[:, 1] + 1,
-                B_tiny[:, 0] - B_tiny[:, 1] - 1,
-            ])
-            A_tiny_aug = np.column_stack([A_tiny, np.ones(len(A_tiny))])
-            """
-        ),
-        code(
-            f"""
-            # ONE-LINE STUDENT EXERCISE
-            {theta_line}
-            """,
-            ["student-code"],
-        ),
-        code(
-            """
-            # PROVIDED CHECK — run after the one-line exercise.
-
-            if theta is None:
-                print("Replace `None` with the pseudoinverse expression, then rerun.")
-            else:
-                B_tiny_hat = A_tiny_aug @ theta
-                print("Theta shape:", theta.shape)
-                print("maximum absolute reconstruction error:",
-                      np.max(np.abs(B_tiny_hat - B_tiny)))
-                print("reconstructed beliefs:\\n", B_tiny_hat)
-            """
-        ),
-        md(
-            r"""
             ## Predict the controls before seeing the picture
 
             A beautiful projected fractal is memorable, but the evidential work
@@ -1748,22 +2206,22 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
             r"""
             ## CORE 4/5 — What does each comparison rule out? (10 minutes)
 
-            For each comparison, predict the result under a genuine
-            activation-to-belief relationship and state the main alternative it
-            addresses.
+            Complete one row for each comparison. Predict the result under a
+            genuine activation-to-belief relationship and name the main
+            alternative it addresses.
 
-            1. Fit on complete two-symbol prefix subtrees and evaluate on other
-               subtrees, so no held-out history has a near-duplicate ancestor in
-               the training set.
-            2. Randomly permute belief labels across activations before fitting,
-               while preserving the set of target belief points.
-            3. Repeat the analysis at checkpoints from initialization through
-               the end of training.
-            4. Compare the activation probe with three baselines: mean belief,
-               last-token-plus-length, and exact next-token probabilities.
-            Which of these controls provides causal evidence that the transformer
-            **uses** the decoded beliefs? If none does, propose the kind of
-            intervention that would.
+            | Comparison | Predicted result | Alternative addressed |
+            |---|---|---|
+            | fit on some complete two-symbol prefix subtrees; evaluate on different subtrees | | |
+            | randomly permute belief labels across activations before fitting | | |
+            | repeat from initialization through trained checkpoints | | |
+            | compare with mean-belief, token-plus-length, and exact-next-token baselines | | |
+
+            **Primary artifact:** the completed control table.
+
+            **Instructor handoff:** do any of these show that the transformer
+            *uses* the decoded direction? If not, what kind of intervention
+            would?
 
             <details><summary>Hint</summary>
             Separate “generalizes to unseen examples”, “not an arbitrary
@@ -1801,7 +2259,7 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
         ),
         md(
             r"""
-            ## CORE VISUAL — Watch a belief signal become recoverable (10 minutes)
+            ## CORE CHECKPOINT — Mess3 success exposes a confound (10 minutes total)
 
             The next cell constructs exact beliefs for the **pedagogical
             Mess3-family parameter variant used in Notebook 1**
@@ -1819,7 +2277,8 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
             is to make the regression and controls inspectable without asking
             you to train a model.
 
-            Before running it, sketch:
+            Spend about 3 minutes predicting, run the supplied cell, then use
+            the remaining time to explain the result. Before running, sketch:
 
             - how held-out MSE and recovered geometry should change from the
               earliest to the latest checkpoint;
@@ -2031,21 +2490,22 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
         ),
         md(
             r"""
-            ### Interpret, do not merely admire
+            ### After running — use the result to choose the next experiment
 
             Compare your predictions with the plots.
 
-            1. Why may recovered points fall slightly outside the simplex, and
-               why color them by **ground-truth** belief rather than recovered
-               coordinates?
-            2. Why is a held-out prefix-subtree split more informative than a
-               random point split here?
-            3. The next-token-only baseline reaches numerical zero error. Use
+            **Primary artifact:** the next-token-only baseline reaches numerical
+            zero error. Use
                $p_{\mathrm{next}}=bE$ and the rank of $E$ to explain why, then
-               say what experiment should become central next.
+            finish this sentence: “Mess3 cannot distinguish belief geometry
+            from ______, so the next experiment must ______.”
 
-            **OPTIONAL AUDIT.** What aspect of the simulation is deliberately
-            unrealistic? What would you inspect before trusting the same
+            **Instructor handoff:** why may recovered points fall outside the
+            simplex, why use ground-truth colors, and why is a held-out prefix
+            subtree stronger than a random point split?
+
+            **OPTIONAL AUDIT:** what aspect of the simulation is deliberately
+            unrealistic, and what would you inspect before trusting the same
             pipeline on real transformer activations?
             """
         ),
@@ -2084,38 +2544,15 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
         ),
         md(
             r"""
-            ## OPTIONAL PAPER CHECKPOINT — What Shai et al. report (8 minutes)
+            ## ACT V — Design the comparison that Mess3 cannot make
 
-            Full source: [Shai et al., *Transformers Represent Belief State
-            Geometry in their Residual Stream* (NeurIPS 2024,
-            arXiv:2405.15943)](https://arxiv.org/abs/2405.15943).
+            The probe worked, but the strongest simple baseline worked even
+            better: for this Mess3 parameterization, the current next-token
+            vector is already an invertible coordinate for the belief. That
+            apparent success creates the final design problem. We need a process
+            containing histories that agree now but differ later—the same logic
+            that started the notebook, scaled into a diagnostic dataset.
 
-            For Mess3, the authors:
-
-            - calculate the exact belief associated with each input history;
-            - record 64-dimensional final residual-stream activations before
-              the final LayerNorm and unembedding;
-            - fit an affine map from activations to the three-state belief;
-            - recover the fractal belief geometry;
-            - show decreasing regression MSE over training;
-            - obtain similar held-out performance under **random
-              input–activation-pair splits**, fitting on 20% and evaluating on
-              80%, repeated independently 1,000 times—not the structured
-              prefix-subtree split used in the teaching simulation above;
-            - find that shuffling activation–belief correspondences collapses
-              the recovered structure toward the simplex center.
-
-            See the paper's [method schematic and main
-            result](https://arxiv.org/html/2405.15943#S2.SS3) and
-            [Figure 6 controls](https://arxiv.org/html/2405.15943#S3.F6).
-
-            These results support affine decodability and geometric
-            correspondence. They do not, on their own, prove that the decoded
-            coordinates are causally used.
-            """
-        ),
-        md(
-            r"""
             ## CORE 5/5 — Matched next-token histories (10 minutes)
 
             The paper also studies Random–Random–XOR (RRXOR), whose 36 HMM
@@ -2138,6 +2575,10 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
             3. Design a distance comparison that separates “activation geometry
                tracks beliefs” from “activation geometry tracks only next-token
                probabilities”.
+
+            **Primary artifact:** one sketch showing the compared pairwise
+            distances and your predicted layer pattern. Label the observation
+            that would favor each explanation.
             """
         ),
         response(
@@ -2165,6 +2606,18 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
             """,
             show_solutions,
         ),
+        code(
+            r"""
+            # EVIDENCE VISUAL — Shai et al. (2024), Figure 7.
+            show_shai_figure(
+                7,
+                "RRXOR — belief geometry beyond the current next-token vector",
+                "A: process · B: exact beliefs · C: decoded representation · "
+                "D: distance tests · E: layerwise probe error",
+                figsize=(15.5, 9.7),
+            )
+            """
+        ),
         md(
             r"""
             ### Reveal — reported RRXOR result
@@ -2180,6 +2633,221 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
             decoded representation separates chosen-HMM beliefs even where
             current next-token probabilities are matched; for the diagnostic
             pairs, those beliefs imply different later conditionals.
+
+            **Source boundary:** the paper reports Mess3 cross-validation and
+            shuffled-label tests in Figure 6, but it does not report an
+            RRXOR-specific held-out split for Figure 7. The RRXOR numbers above
+            therefore establish a reported fitted affine correspondence, not
+            verified out-of-sample generalization. Repeating the analysis on
+            held-out RRXOR histories is a necessary next control, especially for
+            the 256-dimensional concatenated representation.
+
+            Read the evidence in [Shai et al. (2024), Figure
+            7](https://arxiv.org/html/2405.15943#S3.F7): panel C shows the
+            recovered clusters, panel D compares competing explanations of
+            their pairwise distances, and panel E shows why concatenating all
+            layers matters for RRXOR.
+            """
+        ),
+        md(
+            r"""
+            ## CORE SYNTHESIS — the discovery chain
+
+            | What failed or remained ambiguous? | What question did that force next? | What we learned |
+            |---|---|---|
+            | the current next-token vector cannot update through the Z1R collision | what richer coordinate is sufficient? | an HMM belief is one update-ready choice |
+            | sufficiency does not imply a transformer uses those coordinates | what observation would test the hypothesis? | pair each activation with the exact belief and fit a simple diagnostic map |
+            | a fitted projection can overfit or track trivial covariates | which comparisons can make it fail? | held-out data, shuffled labels, checkpoints, and baselines carry the evidential burden |
+            | Mess3 belief is reconstructible from its current next-token vector | how can we separate the two explanations? | use matched-next-token histories that differ in later futures |
+            | RRXOR shows the reported belief-distance pattern, but without a reported RRXOR holdout | what evidence is still missing? | out-of-sample validation and causal intervention remain open |
+
+            Complete both clauses before leaving the core route:
+
+            > The affine probe is interesting because ________.
+            >
+            > The affine probe is not yet decisive because ________.
+            """
+        ),
+        md(
+            r"""
+            # OPTIONAL EXTENSIONS
+
+            The guided discovery is complete. The remaining sections provide
+            source-paper evidence, an algebra/code lab, and an experimental
+            design studio. Choose only what serves the available time.
+            """
+        ),
+        md(
+            r"""
+            ## OPTIONAL PAPER CHECKPOINT — Read the complete evidence sequence (8 minutes)
+
+            The three figures below are the paper's main Mess3 result, its
+            controls, and its one-page visual synthesis. They appear only now so
+            that the empirical answer did not pre-empt CORE 5.
+
+            For Mess3, the authors calculate each history's exact belief, record
+            the 64-dimensional final residual stream before the final LayerNorm
+            and unembedding, and fit an affine activation-to-belief map. Figure 5
+            puts the HMM, exact geometry, and recovered geometry side by side.
+            Figure 6 asks whether the recovery emerges through training,
+            generalizes to held-out pairs, and survives the shuffled-label
+            negative control. Figure 1 compresses the whole argument into the
+            paper's visual abstract.
+            """
+        ),
+        code(
+            r"""
+            # EVIDENCE VISUALS — Shai et al. (2024), Figures 5, 6, and 1.
+            show_shai_figure(
+                5,
+                "MESS3 MAIN RESULT — exact and decoded belief geometry",
+                "A: generator · B: ground-truth MSP geometry · "
+                "C: affine projection of final residual activations",
+                figsize=(16.0, 5.7),
+            )
+            show_shai_figure(
+                6,
+                "MESS3 CONTROLS — emergence, generalization, and label shuffle",
+                "A: training checkpoints · B: 20/80 cross-validation · "
+                "C: shuffled correspondence · D: probe MSE",
+                figsize=(13.8, 8.2),
+            )
+            show_shai_figure(
+                1,
+                "THE PAPER IN ONE FIGURE — prediction, representation, training",
+                "top: generator implies belief geometry · "
+                "bottom: residual geometry converges toward it",
+                figsize=(10.5, 9.3),
+            )
+            """
+        ),
+        md(
+            r"""
+            Use the figures as an evidence ladder rather than as decoration:
+
+            1. **Figure 5:** compare point identity as well as overall outline;
+               the RGB color comes from the exact belief, while position in
+               panel C comes from the affine probe.
+            2. **Figure 6:** check the alternative explanation addressed by each
+               panel. The paper's cross-validation uses random
+               input–activation-pair splits, fitting on 20% and evaluating on
+               80%, repeated independently 1,000 times—not the structured
+               prefix-subtree split in our teaching simulation.
+            3. **Figure 7:** contrast Mess3's final-layer result with RRXOR's
+               distributed-across-layers result.
+
+            These results support affine decodability and geometric
+            correspondence. They do not, on their own, prove that the decoded
+            coordinates are causally used. Full paper: [local NeurIPS
+            PDF](../papers/shai_et_al_2024.pdf) · [online HTML with figure
+            captions](https://arxiv.org/html/2405.15943).
+            """
+        ),
+        md(
+            r"""
+            ## OPTIONAL ALGEBRA + CODE LAB
+
+            These three short checks make the affine geometry concrete. They are
+            deliberately placed after the core synthesis so that mechanics do
+            not interrupt the experimental argument.
+
+            <details><summary>Derive the normal equations</summary>
+            Differentiating
+            $\|\widetilde A\Theta-B\|_F^2$ gives
+            $2\widetilde A^\top(\widetilde A\Theta-B)$. Setting it to zero
+            yields
+            $\widetilde A^\top\widetilde A\Theta=\widetilde A^\top B$.
+            This derivation is optional; the geometry and experimental split
+            carry more weight in the timed path.
+            </details>
+
+            ### Undo a tilted affine embedding (5 minutes)
+
+            Suppose a three-state belief $b=(b_0,b_1,b_2)$, with
+            $b_0+b_1+b_2=1$, is embedded in two activation coordinates:
+
+            $$
+            a_1=2b_0+b_1+1,\qquad
+            a_2=b_0-b_1-1.
+            $$
+
+            Solve for $b_0,b_1,b_2$ as affine functions of $a_1,a_2$. This
+            confirms that an apparently tilted and translated activation
+            triangle can contain exactly the same belief geometry.
+            """
+        ),
+        response(
+            r"""
+            Adding the activation equations cancels $b_1$ and the constants:
+
+            $$
+            b_0=\frac{a_1+a_2}{3}.
+            $$
+
+            The combination $a_1-2a_2-3$ cancels $b_0$, giving
+
+            $$
+            b_1=\frac{a_1-2a_2-3}{3},\qquad
+            b_2=1-b_0-b_1.
+            $$
+
+            The offset is essential: a purely linear map through the origin
+            need not undo the translation by $(1,-1)$.
+            """,
+            show_solutions,
+        ),
+        md(
+            r"""
+            ### Translate the formula into one line (2 minutes)
+
+            The cell supplies exact activation–belief pairs. Replace `None` with
+            **one NumPy expression** corresponding to your pseudoinverse formula.
+            This is a quick transcription check, not a programming exercise.
+
+            <details><summary>API hint</summary>
+            `np.linalg.pinv(M)` computes $M^+$, and matrix multiplication uses
+            `@`.
+            </details>
+            """
+        ),
+        code(
+            """
+            # PROVIDED SETUP — run this collapsed cell first.
+            import numpy as np
+            np.set_printoptions(precision=4, suppress=True)
+
+            B_tiny = np.array([
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+                [1/3, 1/3, 1/3],
+            ])
+            A_tiny = np.column_stack([
+                2*B_tiny[:, 0] + B_tiny[:, 1] + 1,
+                B_tiny[:, 0] - B_tiny[:, 1] - 1,
+            ])
+            A_tiny_aug = np.column_stack([A_tiny, np.ones(len(A_tiny))])
+            """
+        ),
+        code(
+            f"""
+            # ONE-LINE STUDENT EXERCISE
+            {theta_line}
+            """,
+            ["student-code"],
+        ),
+        code(
+            """
+            # PROVIDED CHECK — run after the one-line exercise.
+
+            if theta is None:
+                print("Replace `None` with the pseudoinverse expression, then rerun.")
+            else:
+                B_tiny_hat = A_tiny_aug @ theta
+                print("Theta shape:", theta.shape)
+                print("maximum absolute reconstruction error:",
+                      np.max(np.abs(B_tiny_hat - B_tiny)))
+                print("reconstructed beliefs:\\n", B_tiny_hat)
             """
         ),
         md(
@@ -2237,17 +2905,7 @@ def notebook_2(show_solutions: bool) -> dict[str, Any]:
             """,
             show_solutions,
         ),
-        md(
-            r"""
-            ### Exit ticket
-
-            Complete both clauses:
-
-            > The affine probe is interesting because ________.  
-            > The affine probe is not yet decisive because ________.
-            """
-        ),
-    ]
+    ])
     return notebook(cells, f"02 Transformer belief geometry — {variant}")
 
 
@@ -2286,10 +2944,12 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             **Route through the notebook:** four numbered **CORE** problems plus
             the **CORE SYNTHESIS** have a 55-minute task budget; allow 60–70
             minutes including orientation, supplied checks, and debrief. The
-            Z1R bridge and WFA reconstruction are optional extensions and may be
-            skipped without breaking the core argument. The WFA extension does
-            introduce a new linear coordinate system, so it is best treated as
-            an instructor-led extension unless the group is moving quickly.
+            Z1R bridge, WFA reconstruction, and control-theory bridge are
+            optional extensions and may be skipped without breaking the core
+            argument. The WFA extension introduces a new linear coordinate
+            system, so it is best treated as an instructor-led extension unless
+            the group is moving quickly. The final reading links are for groups
+            with substantial time left.
 
             **Working mode.** Most answers are short derivations. Supplied code
             only checks arithmetic or draws a mathematical object; no Python
@@ -2400,14 +3060,17 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
         ),
         md(
             r"""
-            ### Main results at a glance
+            ### Questions to keep in view
 
-            | Question | Observable answer | Result to derive |
+            The core asks you to discover the answers rather than memorizing
+            them in advance.
+
+            | Question | Observable object to inspect | Where you will settle it |
             |---|---|---|
-            | When are two histories the same predictive state? | Compare their conditional rows $K_{h,\cdot}$ | equality on **all** future tests |
-            | How many linear coordinates are needed? | Study the row/column space of $H$ | full Hankel rank $r$ gives an $r$-dimensional linear realization |
-            | Which coordinates can we use? | Select $r$ independent test columns | their probabilities determine every other test probability linearly |
-            | How does a symbol update the coordinates? | Shift from $h$ to $hx$ | linear before normalization, generally rational after conditioning |
+            | When are two histories the same predictive state? | conditional rows $K_{h,\cdot}$ | CORE 3 |
+            | How many linear coordinates are needed? | row/column dependencies of $H$ | CORE 2 + synthesis |
+            | Which observable coordinates can represent a state? | selected future-test columns | CORE 4 |
+            | How should reading one more symbol update them? | the shift from $h$ to $hx$ | CORE 4 + optional WFA |
 
             A finite data table exposes only a finite block of $H$. Its rank is
             a **lower bound** on the full rank, never automatically an upper
@@ -2901,7 +3564,7 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
                $\Pr(00\mid h),\Pr(01\mid h),\Pr(10\mid h),\Pr(11\mid h)$ in
                terms of $p$, and verify that they sum to one. This demonstrates
                concretely how the core tests determine non-core tests.
-            3. Starting from the identity
+            3. Starting from the identity (valid when $\Pr(hx)>0$)
 
                $$
                \Pr(t\mid hx)=\frac{\Pr(xt\mid h)}{\Pr(x\mid h)},
@@ -2958,7 +3621,7 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             Their sum is $p+(1-p)=1$, and each is a linear function of the core
             coordinate $p$.
 
-            The update identity now gives
+            When $p=\Pr(0\mid h)>0$, the update identity gives
 
             $$
             \Pr(0\mid h0)
@@ -2966,7 +3629,9 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             =\frac{(3/4)p}{p}=\frac34,
             $$
 
-            and, whenever the observed symbol has positive probability,
+            provided that the observed `0` has positive probability.
+
+            When $1-p=\Pr(1\mid h)>0$, it similarly gives
 
             $$
             \Pr(0\mid h1)
@@ -3002,18 +3667,15 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             Notebook 1 established the word formula
             $\Pr(w)=\pi T^{(w)}\mathbf1$.
 
-            1. Apply it to a concatenated history and test $ht$, then split the
-               product at their boundary to derive
-
-               $$
-               H_{h,t}=\Pr(ht)
-               =\underbrace{\pi T^{(h)}}_{R_{h,\cdot}}
-                \underbrace{T^{(t)}\mathbf 1}_{C_{\cdot,t}}.
-               $$
-
-            2. Stack the history rows into an infinite-by-two matrix $R$ and the
-               future columns into a two-by-infinite matrix $C$. Why does
-               $H=RC$ imply $\operatorname{rank}(H)\le2$?
+            1. Apply the word formula to a concatenated history and test $ht$,
+               then split the product at their boundary. Call the resulting
+               $1\times2$ row the **past embedding** $r(h)$ and the
+               $2\times1$ column the **future embedding** $c(t)$. Derive their
+               formulas and explain operationally what each component means.
+               Check the pairing once by computing $r(0)c(1)=\Pr(01)$.
+            2. Stack the past rows into an infinite-by-two matrix $R$ and the
+               future columns into a two-by-infinite matrix $C$. Derive $H=RC$.
+               Why does this imply $\operatorname{rank}(H)\le2$?
             3. Combine this full-rank upper bound with CORE 2's finite-block
                lower bound. What is the exact full Hankel rank of the **adopted
                continuation**?
@@ -3036,13 +3698,27 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             The word formula splits at the boundary between history and future:
 
             $$
-            \Pr(ht)=\pi T^{(h)}T^{(t)}\mathbf1.
+            \Pr(ht)=
+            \underbrace{\pi T^{(h)}}_{r(h)\in\mathbb R^{1\times2}}
+            \underbrace{T^{(t)}\mathbf1}_{c(t)\in\mathbb R^{2\times1}}.
             $$
 
-            Collecting $\pi T^{(h)}$ for all histories as rows and
-            $T^{(t)}\mathbf1$ for all tests as columns factors the **adopted
-            first-order process's full Hankel matrix** through a two-dimensional
-            space, so its full rank is at most two. Separately, the displayed
+            The two entries of $r(h)$ are the unnormalized masses that the past
+            leaves at the two boundary states. The two entries of $c(t)$ are the
+            probabilities of the future test $t$ starting from each boundary
+            state. For example,
+
+            $$
+            r(0)=\pi T^{(0)}=(2/3,0),\qquad
+            c(1)=T^{(1)}\mathbf1=(1/4,1/2)^\top,
+            $$
+
+            so $r(0)c(1)=(2/3)(1/4)=1/6=\Pr(01)$.
+
+            Collecting $r(h)$ for all histories as rows and $c(t)$ for all tests
+            as columns gives $H=RC$ and factors the **adopted first-order
+            process's full Hankel matrix** through a two-dimensional space, so
+            its full rank is at most two. Separately, the displayed
             finite block is a submatrix with rank two, so the full rank is at
             least two. These two logically distinct bounds establish that the
             adopted continuation has full Hankel rank exactly two. The finite
@@ -3206,7 +3882,7 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             r"""
             ---
 
-            # Optional extension B — Reconstruct a WFA (15–20 minutes)
+            # Optional extension B — Reconstruct a WFA (20–25 minutes)
 
             Continue with the adopted first-order source, whose full Hankel rank
             the core established to be two.
@@ -3227,11 +3903,50 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             f(w)=\alpha A_{x_1}\cdots A_{x_L}\omega.
             $$
 
-            For a stochastic process we require $f(w)=\Pr(w)$, but the
-            intermediate coordinates are merely a linear basis. They need not
-            be probabilities.
+            Writing $A_p$ and $A_q$ for the ordered products associated with a
+            past and future makes the two WFA embeddings visible:
 
-            To recover the operators from observable probabilities, select
+            $$
+            \phi_{\mathrm{WFA}}(p)=\alpha A_p,\qquad
+            \psi_{\mathrm{WFA}}(q)=A_q\omega,\qquad
+            H_{p,q}=\phi_{\mathrm{WFA}}(p)\psi_{\mathrm{WFA}}(q).
+            $$
+
+            Appending a symbol updates the past embedding on the right,
+            $\phi_{\mathrm{WFA}}(px)=\phi_{\mathrm{WFA}}(p)A_x$; prepending it
+            updates the future embedding on the left,
+            $\psi_{\mathrm{WFA}}(xq)=A_x\psi_{\mathrm{WFA}}(q)$.
+
+            A general WFA computes a real-valued **rational series**: $f(w)$
+            may be a score, a signed weight, or another real quantity. It does
+            **not** have to be a probability. In this notebook we want an exact
+            realization of a stochastic process, so our target is specifically
+            the cylinder probability $f(w)=\Pr(w)$. That adds
+
+            $$
+            f(\epsilon)=1,\qquad f(w)\ge0,\qquad
+            f(w)=\sum_{x\in\mathcal A}f(wx).
+            $$
+
+            Equivalently, the weights sum to one separately at every fixed word
+            length. This is not a probability distribution over the set of all
+            finite words. To model probabilities of **completed** finite strings
+            instead, one needs termination semantics, usually an end-of-sequence
+            symbol. In either use, the intermediate WFA coordinates are merely a
+            linear basis and need not be probabilities.
+
+            The Hankel factorization makes two embeddings explicit. A past
+            $p$ is embedded as a row $\phi(p)$; a possible future $q$ is
+            embedded as a column $\psi(q)$; and their pairing returns the word
+            weight:
+
+            $$
+            H_{p,q}=f(pq)=\phi(p)\psi(q).
+            $$
+
+            This is the observable counterpart of the HMM factors
+            $\pi T^{(p)}$ and $T^{(q)}\mathbf1$ from the core synthesis. To
+            construct the embeddings from observable probabilities, select
             basis histories $\mathcal P_B$ and core tests $\mathcal Q_B$ so the
             square Hankel block
 
@@ -3246,8 +3961,8 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             (B_x)_{p,q}=\Pr(pxq).
             $$
 
-            The following exercise derives the update equation rather than
-            presenting “right extensions” as an unexplained recipe.
+            The following exercise constructs both embeddings before deriving
+            the update equation.
             """
         ),
         md(
@@ -3259,34 +3974,42 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             1. Fill $B$, $B_0$, and $B_1$ directly from the word table. In each
                entry, write the concatenated word before substituting its
                probability. Verify that $\det B\ne0$.
-            2. The row $B_{p,\cdot}$ is the core-test coordinate row for basis
-               history $p$. After observing $x$, it must become
-               $(B_x)_{p,\cdot}$. Derive the stacked equation
+            2. For any history $h$, construct its **past embedding**
+
+               $$
+               \phi(h)=H_{h,\mathcal Q_B}
+               =\big(\Pr(hq)\big)_{q\in\mathcal Q_B}.
+               $$
+
+               For any future test $t$, construct its **future embedding**
+
+               $$
+               \psi(t)=B^{-1}H_{\mathcal P_B,t}.
+               $$
+
+               Check their dimensions, show that $\psi(q_j)=e_j$ for each core
+               test, and explain why $\Pr(ht)=\phi(h)\psi(t)$ for every $h,t$
+               when the selected columns span the full Hankel matrix. Compute
+               the pairing once for $h=1,t=0$.
+            3. Reading $x$ must send the past embedding $\phi(p)$ to
+               $\phi(px)$. Apply this to every basis history $p$ to derive
 
                $$
                BA_x=B_x,
                $$
 
-               then solve the two $2\times2$ systems—or verify by
-               multiplication—that
+               then solve the two $2\times2$ systems for $A_0$ and $A_1$.
+               The supplied check after your answer will reveal the matrices.
+
+            4. Explain why $\alpha=\phi(\epsilon)$ and
+               $\omega=\psi(\epsilon)$. Compute them, then verify
 
                $$
-               A_0=
-               \begin{pmatrix}0&0\\1&3/4\end{pmatrix},\qquad
-               A_1=
-               \begin{pmatrix}1&1/2\\-1&-1/2\end{pmatrix}.
-               $$
-
-            3. Explain why the empty-history row is
-               $\alpha=(1,2/3)$ and why $\omega=(1,0)^\top$ extracts the
-               empty-test column. Verify
-
-               $$
-               \Pr(0)=\alpha A_0\omega,qquad
+               \Pr(0)=\alpha A_0\omega,\qquad
                \Pr(01)=\alpha A_0A_1\omega.
                $$
 
-            4. $A_1$ contains negative entries. Why are these not negative
+            5. $A_1$ contains negative entries. Why are these not negative
                transition probabilities? State the observable validity
                conditions that the induced word weights must nevertheless
                satisfy.
@@ -3296,6 +4019,13 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             $\Pr(x)$, $\Pr(x0)$, $\Pr(0x)$, and $\Pr(0x0)$. For validity, think
             back to the normalization and extension-consistency identities in
             CORE 1.
+            </details>
+
+            <details><summary>Embedding hint</summary>
+            The vector $\psi(t)$ contains the coefficients expressing the
+            entire column for $t$ as a linear combination of the selected core
+            columns. Pairing those coefficients with row $h$ reconstructs its
+            entry in that column.
             </details>
             """
         ),
@@ -3337,8 +4067,31 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             \det B=\frac12-\frac49=\frac1{18}\ne0.
             $$
 
-            The row $B_{p,\cdot}$ is the observable coordinate row for prefix
-            $p$. After reading symbol $x$, it must become the row
+            The past embedding is the $1\times2$ row
+            $\phi(h)=(\Pr(h),\Pr(h0))$. The future embedding is the
+            $2\times1$ coefficient column
+            $\psi(t)=B^{-1}H_{\mathcal P_B,t}$. Because
+            $H_{\mathcal P_B,q_j}$ is column $j$ of $B$, each selected core test
+            has $\psi(q_j)=e_j$. More generally, rank two means the full Hankel
+            column for $t$ is the same linear combination of the two core
+            columns, so taking entry $h$ gives
+
+            $$
+            \Pr(ht)=H_{h,t}=\phi(h)\psi(t).
+            $$
+
+            For example,
+
+            $$
+            \phi(1)=\left(\frac13,\frac16\right),\qquad
+            \psi(0)=e_2,
+            $$
+
+            and $\phi(1)\psi(0)=1/6=\Pr(10)$. Thus $\phi(h)$ says how
+            the **past reaches** the predictive boundary, while $\psi(t)$ says
+            how a **future test reads out** that boundary state.
+
+            After reading symbol $x$, the past row $\phi(p)$ must become
             $(B_x)_{p,\cdot}$ for prefix $px$. Requiring
             $B_{p,\cdot}A_x=(B_x)_{p,\cdot}$ for both basis prefixes and stacking
             the equations gives
@@ -3365,10 +4118,12 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             \end{pmatrix}.
             $$
 
-            The initial row $\alpha=B_{\epsilon,\cdot}=(1,2/3)$ is the
-            core-test state before any symbol has been observed. The column
-            $\omega=(1,0)^\top$ selects the coordinate for test $\epsilon$, so
-            it returns the total mass of the current unnormalized state. Hence
+            The initial row
+            $\alpha=\phi(\epsilon)=B_{\epsilon,\cdot}=(1,2/3)$ is the
+            past embedding before any symbol has been observed. The final
+            column $\omega=\psi(\epsilon)=e_1=(1,0)^\top$ is the future
+            embedding of the empty test, so it extracts the total mass of the
+            current unnormalized state. Hence
 
             $$
             \alpha A_0\omega=2/3=\Pr(0),
@@ -3388,7 +4143,7 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             are allowed. The **induced word weights** must still satisfy
 
             $$
-            f(w)\ge0,\qquad
+            f(\epsilon)=1,\qquad f(w)\ge0,\qquad
             \sum_{|w|=L}f(w)=1,\qquad
             f(w)=\sum_{x\in\mathcal A}f(wx)
             $$
@@ -3442,12 +4197,105 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             4. tests the reconstructed word probabilities on held-out strings
                and checks stochastic validity.
 
-            The truncated SVD is optimal for approximating that **particular
-            finite matrix block** in Frobenius norm. It is not automatically the
-            closest full stochastic process, and still less automatically the
-            closest $r$-state HMM. This distinction is why WFA reconstruction
-            and nonnegative HMM realization should not be conflated.
+            Before opening the theorem card, decide which of these claims you
+            expect to be true:
+
+            1. Truncated SVD is the best rank-$r$ approximation of the displayed
+               finite matrix.
+            2. Its output is automatically a Hankel matrix for one all-length
+               series.
+            3. Some structured infinite-Hankel problems nevertheless do have an
+               optimal rank-$r$ solution.
+            4. Any such solution is the closest $r$-state HMM.
+
+            Commit a one-line reason for each answer before continuing.
             """
+        ),
+        response(
+            r"""
+            Claim 1 is true only for the chosen finite block and an
+            unconstrained rank bound. Claim 2 is false because ordinary SVD
+            truncation need not preserve Hankel structure. Claim 3 is true in
+            the compact scalar Hankel-operator setting covered by AAK. Claim 4
+            is false because HMMs impose additional positivity and stochastic
+            constraints.
+            """,
+            show_solutions,
+        ),
+        md(
+            r"""
+            ### Theorem card — optimal among what, in which norm?
+
+            Let the singular values use one-based indexing,
+            $\sigma_1\ge\sigma_2\ge\cdots$.
+
+            **Exact rank/minimality (Carlyle–Paz/Fliess).** A real series
+            $f:\mathcal A^*\to\mathbb R$ has a finite-dimensional WFA
+            realization exactly when its full Hankel matrix has finite rank.
+            That rank is the minimum number of states in an exact WFA
+            realization. This is an exact-representation theorem, not an
+            approximation theorem.
+
+            **Finite block (Eckart–Young–Mirsky).** If a particular finite
+            block is $M=U\Sigma V^\top$, then
+            $M_r=U_r\Sigma_rV_r^\top$ minimizes
+
+            $$
+            \min_{\operatorname{rank}(X)\le r}\|M-X\|_2
+            =\|M-M_r\|_2=\sigma_{r+1},
+            $$
+
+            $$
+            \min_{\operatorname{rank}(X)\le r}\|M-X\|_F
+            =\|M-M_r\|_F
+            =\left(\sum_{j>r}\sigma_j^2\right)^{1/2}
+            $$
+
+            over all matrices $X$ of rank at most $r$ (and truncated SVD is
+            optimal for every unitarily invariant norm). But an arbitrary
+            low-rank matrix need not preserve Hankel shift structure, define one
+            consistent all-length series, or satisfy stochastic constraints.
+
+            **Infinite structured Hankel approximation (AAK).** For a compact
+            scalar Hankel operator, there exists a rank-at-most-$r$
+            **Hankel-structured** operator achieving the optimal operator-norm
+            error $\sigma_{r+1}$. This is not generally the raw truncated SVD.
+            The exact AAK-based WFA algorithm currently cited here assumes a
+            bounded real **one-letter** WFA; its proof does not directly extend
+            to a multi-letter alphabet such as our binary example. For general
+            alphabets, truncating a singular-value automaton gives principled
+            tail-singular-value bounds, not this general global-optimality
+            claim.
+
+            None of these theorems says “closest $r$-state HMM.” An HMM adds
+            nonnegative symbol matrices, a stochastic normalization, a
+            probability initial state, and a choice of process-level loss.
+
+            Sources: [the exact WFA rank theorem](https://cs.nyu.edu/~mohri/pub/swa.pdf);
+            [Eckart & Young (1936)](https://doi.org/10.1007/BF02288367);
+            [Singular Value Automata and Approximate Minimization](https://arxiv.org/abs/1711.05994);
+            [Optimal Approximate Minimization of One-Letter WFAs](https://arxiv.org/abs/2306.00135).
+            """
+        ),
+        md(
+            r"""
+            ### SVD synthesis
+
+            In two sentences, answer: **In what sense is the rank-$r$ truncation
+            optimal, and in what sense is it not an optimal rank-$r$ HMM?**
+            """
+        ),
+        response(
+            r"""
+            The raw truncated SVD is optimal among all rank-at-most-$r$ matrices
+            for the chosen finite block in spectral and Frobenius norm; in the
+            classical compact one-variable setting, a different AAK construction
+            is optimal among rank-$r$ Hankel operators in operator norm. Neither
+            optimization ranges over normalized nonnegative HMMs, and raw SVD
+            truncation need not even preserve the all-length Hankel or stochastic
+            constraints, so no closest-$r$-state-HMM conclusion follows.
+            """,
+            show_solutions,
         ),
         md(
             r"""
@@ -3458,6 +4306,179 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             coordinates nor its operators need be nonnegative. What remains
             invariant is still the induced probability of every finite word.
             """,
+        ),
+        md(
+            r"""
+            ---
+
+            # Optional extension C — Control theory sees the same Hankel split (15–20 minutes)
+
+            Control theory asks how an input applied in the past can affect an
+            output observed in the future. For a strictly proper linear
+            time-invariant (LTI) system, compare
+
+            $$
+            \begin{array}{lll}
+            \text{discrete time:}&x_{k+1}=Ax_k+Bu_k,&y_k=Cx_k,\\
+            \text{continuous time:}&\dot x(t)=Ax(t)+Bu(t),&y(t)=Cx(t).
+            \end{array}
+            $$
+
+            Here $B$ injects inputs into state and $C$ reads state into outputs;
+            these are unrelated to the basis block $B$ used in the WFA
+            extension.
+
+            1. Starting from zero state and a unit impulse, derive the discrete
+               Markov parameters $g_k=CA^{k-1}B$ for $k\ge1$ and the continuous
+               impulse response $g(t)=Ce^{At}B$ for $t>0$.
+            2. Show that their past-to-future Hankel kernels factor as
+
+               $$
+               \mathcal H^{\mathrm d}_{i,j}=CA^{i+j}B
+               =(CA^i)(A^jB),\qquad i,j\ge0,
+               $$
+
+               $$
+               \mathcal H^{\mathrm c}(t,s)=Ce^{A(t+s)}B
+               =(Ce^{At})(e^{As}B),\qquad t,s\ge0.
+               $$
+
+               In each factorization, label the map that embeds past inputs into
+               a reachable boundary state and the map that embeds that state
+               into future outputs. Match them to $\phi(h)$ and $\psi(t)$ in the
+               WFA.
+            3. Assume the system is stable. Use an index shift for the sums and
+               the fundamental theorem of calculus for the integrals to derive
+               the four matrix equations satisfied by
+
+               $$
+               \begin{aligned}
+               P_{\mathrm d}&=\sum_{k\ge0}A^kBB^\top(A^\top)^k,&
+               Q_{\mathrm d}&=\sum_{k\ge0}(A^\top)^kC^\top CA^k,\\
+               P_{\mathrm c}&=\int_0^\infty e^{At}BB^\top e^{A^\top t}\,dt,&
+               Q_{\mathrm c}&=\int_0^\infty e^{A^\top t}C^\top Ce^{At}\,dt.
+               \end{aligned}
+               $$
+
+               Which pair uses Stein equations, and which uses Lyapunov
+               equations?
+            4. Suppose a change of coordinates makes
+               $P=Q=\operatorname{diag}(\sigma_1,\ldots,\sigma_n)$ with
+               $\sigma_1\ge\cdots\ge\sigma_n>0$. Explain in words why a
+               direction with small $\sigma_i$ is a natural candidate to
+               truncate. Predict which parts of this argument should be common
+               to discrete and continuous time.
+
+            **Closer WFA analogy.** A multi-symbol WFA is not an ordinary LTI
+            system: the observed symbol selects $A_x$, so it is closer to a
+            discrete switched linear system. The common structure here is the
+            past → boundary state → future factorization, not an identification
+            of inputs with probabilities.
+            """
+        ),
+        response(
+            r"""
+            In discrete time, an impulse at $k=0$ produces
+            $x_1=B$, $x_2=AB$, and in general
+            $y_k=CA^{k-1}B$. In continuous time, the state transition matrix is
+            $e^{At}$, so the impulse response is $Ce^{At}B$. Splitting elapsed
+            time at the present gives the displayed factorizations. The
+            reachability factors $A^jB$ and $e^{As}B$ summarize how a past input
+            reaches the present state; the observability factors $CA^i$ and
+            $Ce^{At}$ summarize how that state appears in future outputs. These
+            play the same structural roles as the WFA's past row $\phi(h)$ and
+            future column $\psi(t)$.
+
+            Shifting the discrete sums by one term gives the Stein equations
+
+            $$
+            P_{\mathrm d}=AP_{\mathrm d}A^\top+BB^\top,\qquad
+            Q_{\mathrm d}=A^\top Q_{\mathrm d}A+C^\top C.
+            $$
+
+            Differentiating the continuous integrands and using stability to
+            make the boundary term at infinity vanish gives the Lyapunov
+            equations
+
+            $$
+            AP_{\mathrm c}+P_{\mathrm c}A^\top+BB^\top=0,\qquad
+            A^\top Q_{\mathrm c}+Q_{\mathrm c}A+C^\top C=0.
+            $$
+
+            A balanced coordinate with small $\sigma_i$ is simultaneously hard
+            for past inputs to reach and hard for future outputs to observe.
+            Both time settings therefore use the same logic—factor the Hankel
+            map, balance reachability against observability, and truncate weak
+            shared directions—while sums become integrals and Stein equations
+            become Lyapunov equations.
+            """,
+            show_solutions,
+        ),
+        md(
+            r"""
+            ### Balanced truncation theorem card
+
+            Assume a finite-dimensional minimal LTI realization and asymptotic
+            stability: $\rho(A)<1$ in discrete time or all eigenvalues of $A$
+            have negative real part in continuous time.
+
+            - **Balancing.** A change of state coordinates can make the
+              controllability and observability Gramians equal:
+              $P=Q=\Sigma=\operatorname{diag}(\sigma_i)$. The $\sigma_i$ are the
+              Hankel singular values—the singular values of the past-to-future
+              Hankel operator.
+            - **Balanced truncation.** Retaining the first $r$ balanced
+              coordinates preserves asymptotic stability and, in both standard
+              discrete- and continuous-time settings, obeys
+
+              $$
+              \|G-G_r\|_{\mathcal H_\infty}
+              \le 2\sum_{j>r}\sigma_j.
+              $$
+
+              This strong guarantee does **not** say balanced truncation is the
+              norm-optimal order-$r$ model.
+            - **Optimal Hankel-norm approximation.** A separate construction
+              characterized by Glover attains error
+              $\sigma_{r+1}$ in Hankel norm. It is the control-theory relative
+              of AAK structured approximation, not ordinary balanced
+              truncation.
+
+            When the relevant Gramians exist, the WFA analogue is a **singular
+            value automaton**, whose forward and backward Gramians are both
+            $\Sigma$. Truncating it gives a reduced WFA with
+            tail-singular-value error bounds, but the LTI
+            $\mathcal H_\infty$ theorem above does not automatically transfer to
+            a general multi-letter WFA.
+
+            Sources: [Moore on balanced realizations](https://doi.org/10.1109/TAC.1981.1102568);
+            [Enns on the balanced-truncation error bound](https://doi.org/10.1109/CDC.1984.272286);
+            [Glover on optimal Hankel-norm approximation](https://doi.org/10.1080/00207178408933239).
+            """
+        ),
+        md(
+            r"""
+            ### If you have lots of time — two modern bridges
+
+            - [*Sequences of Logits Reveal the Low Rank Structure of Language
+              Models*](https://arxiv.org/abs/2510.24966) (Golowich, Liu, and
+              Shetty, 2025) studies an extended matrix of **mean-centered
+              logits** indexed by histories and future/next-token pairs, and
+              relates exact finite-horizon low logit rank to time-varying ISANs.
+              This is not the probability Hankel matrix
+              $H_{h,t}=\Pr(ht)$, so do not identify the two ranks.
+            - [*Input Switched Affine Networks: An RNN Architecture Designed for
+              Interpretability*](https://proceedings.mlr.press/v70/foerster17a.html)
+              (Foerster et al., 2017) studies the recurrence
+              $z_{k+1}=A_{x_k}z_k+b_{x_k}$ with a softmax language-model
+              readout. The symbol-selected affine update is close to WFA and
+              switched-system dynamics, while the softmax output keeps it
+              distinct from a linear WFA readout.
+
+            **Reading question:** Which object is low rank in each paper—the
+            probability Hankel matrix, a logit matrix, or a hidden-state
+            transition—and what conclusion does that rank actually license?
+            """
         ),
     ]
     return notebook(cells, f"03 Hankel PSR WFA — {variant}")

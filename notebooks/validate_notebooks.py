@@ -109,35 +109,135 @@ def validate(path: Path, plt: object) -> None:
     ], f"{path.name} has an incomplete or inconsistent numbered CORE route"
 
     normalized = " ".join(all_source.lower().split())
-    for epigraph_text in [
-        "longum iter est per praecepta, breve et efficax per exempla",
-        "multum interest utrum non velit an nesciat",
-        "velle non discitur",
-        "seneca the younger",
-        "moral letters to lucilius",
-    ]:
+    assert ",qquad" not in all_source, (
+        f"{path.name} contains a malformed LaTeX spacing command"
+    )
+    epigraph_texts = (
+        [
+            "ἀεὶ ὁ θεὸς γεωμετρεῖ",
+            "god always geometrizes",
+            "attributed to **plato**",
+            "**plutarch**",
+            "moralia* 718b–c",
+        ]
+        if path.name.startswith("02_")
+        else [
+            "longum iter est per praecepta, breve et efficax per exempla",
+            "multum interest utrum non velit an nesciat",
+            "velle non discitur",
+            "seneca the younger",
+            "moral letters to lucilius",
+        ]
+    )
+    for epigraph_text in epigraph_texts:
         assert epigraph_text in normalized, (
-            f"{path.name} is missing the attributed Seneca epigraph: "
+            f"{path.name} is missing required epigraph text: "
             f"{epigraph_text}"
+        )
+
+    if path.name.startswith("01_"):
+        core_2 = normalized.index("## core 2/4")
+        core_3 = normalized.index("## core 3/4")
+        core_4 = normalized.index("## core 4/4")
+        belief_update = normalized.index("derive the recursive map")
+        future_word = normalized.index("a whole new future word")
+        assert core_2 < core_3 < belief_update < core_4 < future_word, (
+            f"{path.name} introduces belief or future-word calculations "
+            "before their designated core section"
+        )
+        assert "when $\\pr(u\\mid h)>0$" in normalized, (
+            f"{path.name} omits the domain of the future-posterior identity"
         )
 
     if path.name.startswith("02_"):
         for label in [
+            "act i — from a prediction collision to a representation question",
+            "the collision — correct now is not enough to stay correct",
+            "one-step objective, multi-step representational burden",
+            "invent the experiment before seeing the paper's version",
+            "reveal — compare your experiment with the paper's",
+            "the actual test bed",
+            "shai et al. (2024), figure 5b",
+            "shai et al. (2024), figure 5a",
+            "shai et al. (2024), figure 3",
+            "shai et al. (2024), figure 4",
+            "shai et al. (2024), figure 7",
+            "shai et al. (2024), figures 5, 6, and 1",
+            "local neurips pdf",
             "teaching simulation",
             "not transformer activations",
             "not paper data",
             "not the paper's generator parameters",
+            "source boundary",
+            "core synthesis — the discovery chain",
+            "# optional extensions",
+            "optional algebra + code lab",
+            "observed symbol $x$ has positive conditional probability",
         ]:
             assert label in normalized, (
                 f"{path.name} is missing simulation qualifier: {label}"
             )
+        core_1 = normalized.index("## core 1/5")
+        core_2 = normalized.index("## core 2/5")
+        core_3 = normalized.index("## core 3/5")
+        assert normalized.index(
+            "this is not yet a theorem about transformers"
+        ) < core_1, f"{path.name} delays the transformer-scope caveat"
+        if "exercises" in path.name:
+            discovery_prefix = normalized[:core_2]
+            for leaked_answer in ["affine", "activation-to-belief"]:
+                assert leaked_answer not in discovery_prefix, (
+                    f"{path.name} reveals {leaked_answer!r} before CORE 2"
+                )
+        assert core_2 < normalized.index(
+            "the actual test bed"
+        ) < core_3, (
+            f"{path.name} reveals the completed probe before students invent it"
+        )
+        assert core_2 < normalized.index(
+            "source visual — shai et al. (2024), figure 3"
+        ) < core_3, (
+            f"{path.name} reveals the paper's target before students choose it"
+        )
+        assert normalized.index("the actual test bed") < normalized.index(
+            "source visual — shai et al. (2024), figure 4"
+        ) < core_3, (
+            f"{path.name} places the paper's method figure outside its reveal"
+        )
+        assert normalized.index("## core 5/5") < normalized.index(
+            "evidence visual — shai et al. (2024), figure 7"
+        ) < normalized.index("## optional paper checkpoint"), (
+            f"{path.name} reveals RRXOR evidence before CORE 5"
+        )
+        assert normalized.index("## optional paper checkpoint") < normalized.index(
+            "evidence visuals — shai et al. (2024), figures 5, 6, and 1"
+        ), f"{path.name} places the Mess3 evidence gallery too early"
+        synthesis = normalized.index("## core synthesis — the discovery chain")
+        assert "derive the normal equations" not in normalized[:synthesis], (
+            f"{path.name} interleaves optional algebra with the core route"
+        )
+        assert synthesis < normalized.index(
+            "# optional extensions"
+        ) < normalized.index("## optional algebra + code lab"), (
+            f"{path.name} interleaves optional mechanics with the core route"
+        )
 
     if path.name.startswith("03_"):
         for guardrail in [
             "55-minute task budget",
             "dimension of a linear span, not generally the number",
             "whenever that observation has positive probability",
+            "past embedding",
+            "future embedding",
+            "eckart–young–mirsky",
+            "infinite structured hankel approximation (aak)",
+            "it does **not** have to be a probability",
+            "optional extension c — control theory",
+            "balanced truncation theorem card",
+            "sequences of logits reveal the low rank structure",
+            "input switched affine networks",
             "optional wfa recap",
+            "valid when $\\pr(hx)>0$",
         ]:
             assert guardrail in normalized, (
                 f"{path.name} is missing Notebook 3 guardrail: {guardrail}"
@@ -145,6 +245,9 @@ def validate(path: Path, plt: object) -> None:
         assert normalized.index("## core synthesis table") < normalized.index(
             "# optional extension a"
         ), f"{path.name} places the required synthesis after optional material"
+        assert normalized.index("# optional extension b") < normalized.index(
+            "# optional extension c"
+        ), f"{path.name} places the control bridge before the WFA construction"
 
     print(f"PASS {path.name}: {len(data['cells'])} cells, {code_count} executed")
 
@@ -206,6 +309,12 @@ def main() -> None:
     actual_notebooks = sorted(path.name for path in HERE.glob("*.ipynb"))
     assert actual_notebooks == EXPECTED_NOTEBOOKS, (
         f"notebook inventory differs: {actual_notebooks}"
+    )
+    for figure_number in [1, 3, 4, 5, 6, 7]:
+        asset = HERE / "assets" / f"shai_et_al_2024_figure_{figure_number}.png"
+        assert asset.exists(), f"missing Notebook 2 source figure: {asset.name}"
+    assert (HERE.parent / "papers" / "shai_et_al_2024.pdf").exists(), (
+        "missing local Shai et al. paper"
     )
     with tempfile.TemporaryDirectory(prefix="iliad-mpl-") as mpl_dir:
         os.environ["MPLBACKEND"] = "Agg"
