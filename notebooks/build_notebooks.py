@@ -542,6 +542,7 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
             p_x(\eta)=\eta T^{(x)}\mathbf 1.
             $$
 
+            Write $F_x(\eta)$ for the updated belief after observing $x$.
             When $p_x(\eta)>0$, the MSP contains the edge
             $\eta\xrightarrow{x:p_x(\eta)}F_x(\eta)$. If $p_x(\eta)=0$, that
             observation is impossible from $\eta$, so there is no such edge and
@@ -933,10 +934,11 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
         ),
         md(
             r"""
-            **Model-relative caveat.** An HMM belief is a sufficient state for
-            prediction relative to the chosen HMM realization, but it need not
-            be the minimal observable predictive state. Distinct beliefs can,
-            in principle, assign the same probability to **every** future word;
+            **Model-relative caveat.** A belief over the chosen HMM's hidden
+            states is sufficient for prediction relative to that realization,
+            but it need not be the minimal observable predictive state.
+            Distinct beliefs can, in principle, assign the same probability to
+            **every** future word;
             an observable predictive representation would merge such beliefs.
             Later notebooks return to that distinction.
             """
@@ -974,32 +976,34 @@ def notebook_1(show_solutions: bool) -> dict[str, Any]:
             \eta^{(\epsilon)}=(1/3,1/3,1/3).
             $$
 
-            A point $(q_0,q_1,q_2)$ in the belief triangle means that the
-            observer assigns probability $q_i$ to hidden state $S_i$. Its three
-            corners are the **certainty beliefs** $(1,0,0)$, $(0,1,0)$, and
-            $(0,0,1)$. For a fixed observed token $x$, update each corner with
+            A point $(\eta_0,\eta_1,\eta_2)$ in the belief triangle means that
+            the observer assigns probability $\eta_i$ to hidden state $S_i$.
+            Its three corners are the **certainty beliefs** $(1,0,0)$,
+            $(0,1,0)$, and $(0,0,1)$. For a fixed observed token $x$, update
+            each corner with
 
             $$
-            F_x(q)=\frac{qT^{(x)}}{qT^{(x)}\mathbf1}.
+            F_x(\eta)=\frac{\eta T^{(x)}}{\eta T^{(x)}\mathbf1}.
             $$
 
             At a certainty belief this simply normalizes one row of $T^{(x)}$.
             For a certainty belief $e_i$, write
             $r_i=e_iT^{(x)}\mathbf1$ for the probability of token $x$ and
-            $v_i=F_x(e_i)$ for the updated corner. For an uncertain belief $q$,
+            $v_i=F_x(e_i)$ for the updated corner. For an uncertain belief
+            $\eta$,
 
             $$
-            F_x(q)=\sum_i\beta_i v_i,
+            F_x(\eta)=\sum_i\beta_i v_i,
             \qquad
-            \beta_i=\frac{q_i r_i}{\sum_k q_k r_k}.
+            \beta_i=\frac{\eta_i r_i}{\sum_k \eta_k r_k}.
             $$
 
             Thus the update uses **likelihood-reweighted** coefficients, not
-            generally the original coordinates $q_i$. All Mess3 row masses are
-            positive, so the possible coefficients $\beta$ fill the simplex and
-            the three corner images bound exactly the region of posteriors after
-            observing $x$. The first visual shows those three regions; it does
-            not reveal any length-two calculations.
+            generally the original coordinates $\eta_i$. All Mess3 row masses
+            are positive, so the possible coefficients $\beta$ fill the simplex
+            and the three corner images bound exactly the region of posteriors
+            after observing $x$. The first visual shows those three regions; it
+            does not reveal any length-two calculations.
             """
         ),
         code(
@@ -2986,8 +2990,9 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             K_{h,\cdot}=\big(\Pr(t\mid h)\big)_{t\in\mathcal A^*}.
             $$
 
-            This is the observable analogue of an HMM belief. A belief answers
-            future questions by $\eta T^{(t)}\mathbf1$; a predictive profile
+            This is the observable analogue of a belief over the hidden states
+            of a chosen HMM. Such a belief answers future questions by
+            $\eta T^{(t)}\mathbf1$; a predictive profile
             stores the answers themselves. Two histories are **predictively
             equivalent** when their profiles agree for every finite test:
 
@@ -3100,6 +3105,7 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             |---|---|
             | $\mathcal A^*$ | all finite words over the alphabet, including $\epsilon$ |
             | $h,t$ | an observed history and a future test |
+            | $\mathcal P,\mathcal T$ | finite sets of histories and tests used to select a Hankel block |
             | $K_{h,t}=\Pr(t\mid h)$ | conditional predictive table |
             | $H_{h,t}=\Pr(ht)$ | joint process Hankel matrix |
             | $\operatorname{rank}(H)$ | dimension of the full linear predictive span |
@@ -3245,7 +3251,7 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             $$
 
             We cannot write the infinite matrix, so begin with histories and
-            tests $\mathcal P=\mathcal S=\{\epsilon,0,1\}$ in that order.
+            tests $\mathcal P=\mathcal T=\{\epsilon,0,1\}$ in that order.
 
             1. Translate the definition entry by entry to fill the $3\times3$
                block $H$. Explain in words what $H_{0,1}$ and
@@ -3682,12 +3688,13 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
 
             1. Apply the word formula to a concatenated history and test $ht$,
                then split the product at their boundary. Call the resulting
-               $1\times2$ row the **past embedding** $r(h)$ and the
-               $2\times1$ column the **future embedding** $c(t)$. Derive their
+               $1\times2$ row the **history embedding** $\phi(h)$ and the
+               $2\times1$ column the **test embedding** $\psi(t)$. Derive their
                formulas and explain operationally what each component means.
-               Check the pairing once by computing $r(0)c(1)=\Pr(01)$.
-            2. Stack the past rows into an infinite-by-two matrix $R$ and the
-               future columns into a two-by-infinite matrix $C$. Derive $H=RC$.
+               Check the pairing once by computing $\phi(0)\psi(1)=\Pr(01)$.
+            2. Stack the history rows into an infinite-by-two matrix $\Phi$ and
+               the test columns into a two-by-infinite matrix $\Psi$. Derive
+               $H=\Phi\Psi$.
                Why does this imply $\operatorname{rank}(H)\le2$?
             3. Combine this full-rank upper bound with CORE 2's finite-block
                lower bound. What is the exact full Hankel rank of the **adopted
@@ -3712,26 +3719,26 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
 
             $$
             \Pr(ht)=
-            \underbrace{\pi T^{(h)}}_{r(h)\in\mathbb R^{1\times2}}
-            \underbrace{T^{(t)}\mathbf1}_{c(t)\in\mathbb R^{2\times1}}.
+            \underbrace{\pi T^{(h)}}_{\phi(h)\in\mathbb R^{1\times2}}
+            \underbrace{T^{(t)}\mathbf1}_{\psi(t)\in\mathbb R^{2\times1}}.
             $$
 
-            The two entries of $r(h)$ are the unnormalized masses that the past
-            leaves at the two boundary states. The two entries of $c(t)$ are the
-            probabilities of the future test $t$ starting from each boundary
-            state. For example,
+            The two entries of $\phi(h)$ are the unnormalized masses that the
+            history leaves at the two boundary states. The two entries of
+            $\psi(t)$ are the probabilities of the future test $t$ starting
+            from each boundary state. For example,
 
             $$
-            r(0)=\pi T^{(0)}=(2/3,0),\qquad
-            c(1)=T^{(1)}\mathbf1=(1/4,1/2)^\top,
+            \phi(0)=\pi T^{(0)}=(2/3,0),\qquad
+            \psi(1)=T^{(1)}\mathbf1=(1/4,1/2)^\top,
             $$
 
-            so $r(0)c(1)=(2/3)(1/4)=1/6=\Pr(01)$.
+            so $\phi(0)\psi(1)=(2/3)(1/4)=1/6=\Pr(01)$.
 
-            Collecting $r(h)$ for all histories as rows and $c(t)$ for all tests
-            as columns gives $H=RC$ and factors the **adopted first-order
-            process's full Hankel matrix** through a two-dimensional space, so
-            its full rank is at most two. Separately, the displayed
+            Collecting $\phi(h)$ for all histories as rows and $\psi(t)$ for all
+            tests as columns gives $H=\Phi\Psi$ and factors the **adopted
+            first-order process's full Hankel matrix** through a two-dimensional
+            space, so its full rank is at most two. Separately, the displayed
             finite block is a submatrix with rank two, so the full rank is at
             least two. These two logically distinct bounds establish that the
             adopted continuation has full Hankel rank exactly two. The finite
@@ -3916,19 +3923,19 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             f(w)=\alpha A_{x_1}\cdots A_{x_L}\omega.
             $$
 
-            Writing $A_p$ and $A_q$ for the ordered products associated with a
-            past and future makes the two WFA embeddings visible:
+            Writing $A_h$ and $A_t$ for the ordered products associated with a
+            history and future test makes the two WFA embeddings visible:
 
             $$
-            \phi_{\mathrm{WFA}}(p)=\alpha A_p,\qquad
-            \psi_{\mathrm{WFA}}(q)=A_q\omega,\qquad
-            H_{p,q}=\phi_{\mathrm{WFA}}(p)\psi_{\mathrm{WFA}}(q).
+            \phi_{\mathrm{WFA}}(h)=\alpha A_h,\qquad
+            \psi_{\mathrm{WFA}}(t)=A_t\omega,\qquad
+            H_{h,t}=\phi_{\mathrm{WFA}}(h)\psi_{\mathrm{WFA}}(t).
             $$
 
             Appending a symbol updates the past embedding on the right,
-            $\phi_{\mathrm{WFA}}(px)=\phi_{\mathrm{WFA}}(p)A_x$; prepending it
+            $\phi_{\mathrm{WFA}}(hx)=\phi_{\mathrm{WFA}}(h)A_x$; prepending it
             updates the future embedding on the left,
-            $\psi_{\mathrm{WFA}}(xq)=A_x\psi_{\mathrm{WFA}}(q)$.
+            $\psi_{\mathrm{WFA}}(xt)=A_x\psi_{\mathrm{WFA}}(t)$.
 
             A general WFA computes a real-valued **rational series**: $f(w)$
             may be a score, a signed weight, or another real quantity. It does
@@ -3948,13 +3955,13 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             symbol. In either use, the intermediate WFA coordinates are merely a
             linear basis and need not be probabilities.
 
-            The Hankel factorization makes two embeddings explicit. A past
-            $p$ is embedded as a row $\phi(p)$; a possible future $q$ is
-            embedded as a column $\psi(q)$; and their pairing returns the word
+            The Hankel factorization makes two embeddings explicit. A history
+            $h$ is embedded as a row $\phi(h)$; a future test $t$ is
+            embedded as a column $\psi(t)$; and their pairing returns the word
             weight:
 
             $$
-            H_{p,q}=f(pq)=\phi(p)\psi(q).
+            H_{h,t}=f(ht)=\phi(h)\psi(t).
             $$
 
             This is the observable counterpart of the HMM factors
@@ -4004,8 +4011,8 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
                test, and explain why $\Pr(ht)=\phi(h)\psi(t)$ for every $h,t$
                when the selected columns span the full Hankel matrix. Compute
                the pairing once for $h=1,t=0$.
-            3. Reading $x$ must send the past embedding $\phi(p)$ to
-               $\phi(px)$. Apply this to every basis history $p$ to derive
+            3. Reading $x$ must send the history embedding $\phi(h)$ to
+               $\phi(hx)$. Apply this to every basis history $h$ to derive
 
                $$
                BA_x=B_x,
@@ -4044,8 +4051,8 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
         ),
         response(
             r"""
-            Concatenating each basis history $p$ with basis test $q$ for $B$,
-            or $p$, inserted symbol $x$, and $q$ for $B_x$, gives
+            Concatenating each basis history $h$ with basis test $t$ for $B$,
+            or $h$, inserted symbol $x$, and $t$ for $B_x$, gives
 
             $$
             B=
@@ -4104,9 +4111,9 @@ def notebook_3(show_solutions: bool) -> dict[str, Any]:
             the **past reaches** the predictive boundary, while $\psi(t)$ says
             how a **future test reads out** that boundary state.
 
-            After reading symbol $x$, the past row $\phi(p)$ must become
-            $(B_x)_{p,\cdot}$ for prefix $px$. Requiring
-            $B_{p,\cdot}A_x=(B_x)_{p,\cdot}$ for both basis prefixes and stacking
+            After reading symbol $x$, the history row $\phi(h)$ must become
+            $(B_x)_{h,\cdot}$ for prefix $hx$. Requiring
+            $B_{h,\cdot}A_x=(B_x)_{h,\cdot}$ for both basis prefixes and stacking
             the equations gives
 
             $$
